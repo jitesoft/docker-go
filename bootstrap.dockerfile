@@ -1,12 +1,12 @@
 # Stage 1. Build the bootstrap file.
-FROM registry.gitlab.com/jitesoft/dockerfiles/alpine:latest as InitBootstrap
+FROM registry.gitlab.com/jitesoft/dockerfiles/alpine:latest
 ENV CGO_ENABLED=0 \
     GOOS="linux" \
     GOARCH="amd64"
 
-COPY /go1.4-bootstrap-20171003.tar.gz /tmp/bootstrap.tar.gz
+COPY ./go1.4-bootstrap-20171003.tar.gz /tmp/bootstrap.tar.gz
 
-RUN apk add --no-cache --virtual .build bash gcc musl-dev openssl tar \
+RUN apk add --no-cache bash gcc musl-dev openssl tar ca-certificates \
  && tar -C /tmp -zxf /tmp/bootstrap.tar.gz \
  && cd /tmp/go/src \
  && chmod +x make.bash
@@ -28,5 +28,7 @@ ENV CGO_ENABLED=0 \
     GOARCH="amd64" \
     GOROOT_BOOTSTRAP="/usr/local/bootstrap"
 
-RUN mkdir -p /usr/local/bootstrap
-COPY /tmp/go/go-${GOOS}-${GOARCH}-bootstrap /usr/local/bootstrap
+RUN apk add --no-cache ca-certificates \
+ && mkdir -p /usr/local/bootstrap
+
+COPY --from=0  /tmp/go/go-${GOOS}-${GOARCH}-bootstrap /usr/local/bootstrap
