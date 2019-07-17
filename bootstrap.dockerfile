@@ -7,8 +7,8 @@ ENV CGO_ENABLED=0 \
 COPY ./go1.4-bootstrap-20171003.tar.gz /tmp/bootstrap.tar.gz
 
 RUN apk add --no-cache bash gcc musl-dev openssl tar ca-certificates \
- && tar -C /tmp -zxf /tmp/bootstrap.tar.gz \
- && cd /tmp/go/src \
+ && tar -C /usr/local -zxf /tmp/bootstrap.tar.gz \
+ && cd /usr/local/go/src \
  && chmod +x make.bash \
  && ./make.bash
 
@@ -26,9 +26,8 @@ LABEL maintainer="Johannes Tegnér <johannes@jitesoft.com>" \
 ENV CGO_ENABLED=0 \
     GOOS="linux" \
     GOARCH="amd64" \
-    GOROOT_BOOTSTRAP="/usr/local/bootstrap"
+    GOROOT_BOOTSTRAP="/usr/local/go" \
+    PATH="/usr/local/go/bin:$PATH"
 
-RUN apk add --no-cache ca-certificates \
- && mkdir -p /usr/local/bootstrap
-
-COPY --from=pre-build  /tmp/go /usr/local/bootstrap
+RUN apk add --no-cache ca-certificates
+COPY --from=pre-build  /usr/local/go /usr/local/go
