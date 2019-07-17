@@ -101,15 +101,16 @@ download:bootstrap:
   stage: download
   image: registry.gitlab.com/jitesoft/dockerfiles/alpine:latest
   variables:
-    SHA: "F4FF5B5EB3A3CAE1C993723F3EAB519C5BAE18866B5E5F96FE1102F0CB5C3E52"
-    URI: "https://dl.google.com/go/go1.4-bootstrap-20171003.tar.gz"
+    GIT_STRATEGY: none
+    SHA: "f4ff5b5eb3a3cae1c993723f3eab519c5bae18866b5e5f96fe1102f0cb5c3e52"
   script:
-    - wget ${URI}
+    - wget https://dl.google.com/go/go1.4-bootstrap-20171003.tar.gz
+    - sha256sum go1.4-bootstrap-20171003.tar.gz
     - echo "${SHA} go1.4-bootstrap-20171003.tar.gz" | sha256sum -c -
   artifacts:
     paths:
       - go1.4-bootstrap-20171003.tar.gz
-    expire_in: 1 day
+    expire_in: 5 hours
   only:
     refs:
       - bootstrap
