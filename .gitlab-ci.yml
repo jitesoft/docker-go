@@ -25,6 +25,9 @@ download:versions:
     paths:
       - sha256sum.txt
     expire_in: 1 day
+  only:
+    refs:
+      - master
 
 download:src:
   image: registry.gitlab.com/jitesoft/dockerfiles/alpine:latest
@@ -48,6 +51,9 @@ download:src:
     paths:
       - ${CI_PROJECT_DIR}/*.src.tar.gz
     expire_in: 1 day
+  only:
+    refs:
+      - master
 
 .build:
   dependencies:
@@ -60,6 +66,9 @@ download:src:
   script:
     - docker build --build-arg VERSION=${VERSION} -t ${CI_REGISTRY_IMAGE}:${VERSION} .
     - docker push ${CI_REGISTRY_IMAGE}:${VERSION}
+  only:
+    refs:
+      - master
 
 build:next:
   extends: .build
@@ -78,3 +87,45 @@ build:prev:
     - echo ${DOCKER_HUB_PASSWORD} | docker login -u ${DOCKER_HUB_USER} --password-stdin
     - FILE=$(cat sha256sum.txt | awk '{print $2}' | tail -1)
     - VERSION=$(echo ${FILE} | grep -oP '([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3})')
+
+########################################################################################################################
+#                                                                                                                      #
+#                                                  Bootstrap build.                                                    #
+#                                                                                                                      #
+# Due to the fact that Go requires Go to compile, a bootstrap image is required. The following build steps are made to #
+# only build the bootstrap file and push it to the registry. It's only built when required, not always.                #
+#                                                                                                                      #
+########################################################################################################################
+
+download:bootstrap:
+  stage: download
+  image: registry.gitlab.com/jitesoft/dockerfiles/alpine:latest
+  variables:
+    SHA: "F4FF5B5EB3A3CAE1C993723F3EAB519C5BAE18866B5E5F96FE1102F0CB5C3E52"
+    URI: "https://dl.google.com/go/go1.4-bootstrap-20171003.tar.gz"
+  script:
+    - wget ${URI}
+    - echo "${SHA} go1.4-bootstrap-20171003.tar.gz" | sha256sum -c -
+  artifacts:
+    paths:
+      - go1.4-bootstrap-20171003.tar.gz
+    expire_in: 1 day
+  only:
+    refs:
+      - bootstrap
+
+build:bootstrap:
+  stage: build
+  dependencies:
+    - download:bootstrap
+  image: registry.gitlab.com/jitesoft/dockerfiles/docker:latest
+  services:
+    - registry.gitlab.com/jitesoft/dockerfiles/docker/dind:latest
+  before_script:
+    - echo ${CI_JOB_TOKEN} | docker login -u gitlab-ci-token registry.gitlab.com --password-stdin
+  script:
+    - docker build -t ${CI_REGISTRY_IMAGE}:bootstrap -c bootstrap.dockerfile .
+    - docker push ${CI_REGISTRY_IMAGE}:bootstrap
+  only:
+    refs:
+      - bootstrap
