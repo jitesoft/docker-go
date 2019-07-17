@@ -106,7 +106,6 @@ download:bootstrap:
   script:
     - wget https://dl.google.com/go/go1.4-bootstrap-20171003.tar.gz
     - echo "${SHA}" > shasum.txt
-    - sha256sum go1.4-bootstrap-20171003.tar.gz
     - sha256sum -c shasum.txt
   artifacts:
     paths:
@@ -126,7 +125,7 @@ build:bootstrap:
   before_script:
     - echo ${CI_JOB_TOKEN} | docker login -u gitlab-ci-token registry.gitlab.com --password-stdin
   script:
-    - docker build -t ${CI_REGISTRY_IMAGE}:bootstrap -c bootstrap.dockerfile .
+    - docker build -t ${CI_REGISTRY_IMAGE}:bootstrap -f bootstrap.dockerfile .
     - docker push ${CI_REGISTRY_IMAGE}:bootstrap
   only:
     refs:
