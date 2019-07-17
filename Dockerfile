@@ -1,4 +1,8 @@
 FROM registry.gitlab.com/jitesoft/dockerfiles/go:bootstrap as build
+ARG VERSION
+
+ENV PATH="/usr/local/bootstrap/bin:$PATH" \
+    GOROOT_BOOTSTRAP=""
 
 COPY ./go${VERSION}.src.tar.gz /tmp/go.tar.gz
 RUN apk add --no-cache --virtual .build bash gcc musl-dev openssl \
@@ -25,9 +29,9 @@ ARG VERSION
 ENV PATH="/usr/local/go/bin:$PATH" \
     GOPATH="/go" \
     GOOS="linux" \
-    GOARCH="amd64" \
+    GOARCH="amd64"
 
-COPY ./go${VERSION}.src.tar.gz /tmp/go.tar.gz
+COPY --from=build ./go${VERSION}.src.tar.gz /tmp/go.tar.gz
 
 RUN apk add --no-cache ca-certificates \
  && [ ! -e /etc/nsswitch.conf ] && echo 'hosts: files dns' > /etc/nsswitch.conf \
