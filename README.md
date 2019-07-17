@@ -5,8 +5,17 @@ This image contains nothing but go and is intended as a base image to derive fro
 
 ## Tags
 
+### Docker Hub
+
 * `1.12`, `1.12.<minor>` `latest`
 * `1.11`, `1.11.<minor>`
+
+### GitLab
+
+* `registry.gitlab.com/jitesoft/dockerfiles/go`
+  * `1.12`, `1.12.<minor>` `latest`
+  * `1.11`, `1.11.<minor>`
+  * `bootstrap` (go 1.4 for bootstrap compilation) 
 
 ## Docker files
 

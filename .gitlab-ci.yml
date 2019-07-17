@@ -64,7 +64,7 @@ download:src:
   services:
     - registry.gitlab.com/jitesoft/dockerfiles/docker/dind:latest
   script:
-    - docker build --build-arg VERSION=${VERSION} -t ${CI_REGISTRY_IMAGE}:${VERSION} .
+    - docker build --build-arg VERSION=${VERSION} --label "com.jitesoft.app.go.version=${VERSION}" -t ${CI_REGISTRY_IMAGE}:${VERSION} .
     - TAGS="${TAGS} ${VERSION} $(echo ${VERSION} | cut -d'.' -f1,2)"
     - |
       for tag in $TAGS; do
