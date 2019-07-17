@@ -1,3 +1,4 @@
+# Stage 1. Build the bootstrap file.
 FROM registry.gitlab.com/jitesoft/dockerfiles/alpine:latest as InitBootstrap
 ENV CGO_ENABLED=0 \
     GOOS="linux" \
@@ -11,6 +12,7 @@ RUN apk add --no-cache --virtual .build bash gcc musl-dev openssl tar \
  && chmod +x make.bash
  && ./make.bash
 
+# Stage 2. Copy bootstrap exec to the actual bootstrap image.
 FROM registry.gitlab.com/jitesoft/dockerfiles/alpine:latest
 LABEL maintainer="Johannes Tegnér <johannes@jitesoft.com>" \
       maintainer.org="Jitesoft" \
