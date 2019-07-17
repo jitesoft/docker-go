@@ -14,12 +14,13 @@ ARG VERSION
 ENV PATH="/usr/local/go/bin:$PATH" \
     GOPATH="/go"
 
-COPY ./go${VERSION}.src.tar.xz /tmp/go.tar.xz
+COPY ./go${VERSION}.src.tar.gz /tmp/go.tar.gz
 RUN apk add --no-cache ca-certificates \
  && [ ! -e /etc/nsswitch.conf ] && echo 'hosts: files dns' > /etc/nsswitch.conf \
  && apk add --no-cache --virtual .build bash gcc musl-dev openssl \
- && tar -C /usr/local -xzf /tmp/go.tar.xz \
- && rm -f /tmp/go.tar.xz \
+ && tar -C /usr/local -xzf /tmp/go.tar.gz \
+ && tar -C /usr/local -xzf /tmp/go.tar.gz \
+ && rm -f /tmp/go.tar.gz \
  && cd /usr/local/go/src \
  && ./make.bash \
  && rm -rf /usr/local/go/pkg/bootstrap /usr/local/go/pkg/obj \
