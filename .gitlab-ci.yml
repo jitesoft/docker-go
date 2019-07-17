@@ -102,11 +102,12 @@ download:bootstrap:
   image: registry.gitlab.com/jitesoft/dockerfiles/alpine:latest
   variables:
     GIT_STRATEGY: none
-    SHA: "f4ff5b5eb3a3cae1c993723f3eab519c5bae18866b5e5f96fe1102f0cb5c3e52"
+    SHA: "f4ff5b5eb3a3cae1c993723f3eab519c5bae18866b5e5f96fe1102f0cb5c3e52  go1.4-bootstrap-20171003.tar.gz"
   script:
     - wget https://dl.google.com/go/go1.4-bootstrap-20171003.tar.gz
+    - echo "${SHA}" > shasum.txt
     - sha256sum go1.4-bootstrap-20171003.tar.gz
-    - echo "${SHA} go1.4-bootstrap-20171003.tar.gz" | sha256sum -c -
+    - sha256sum -c shasum.txt
   artifacts:
     paths:
       - go1.4-bootstrap-20171003.tar.gz
