@@ -12,9 +12,7 @@ download:versions:
   script:
     - HTML=$(wget -qO- https://golang.org/dl)
     # For some reason, the build script would not work when running this with a pipe, so for now, it aught to be multi commands...
-    - VERSIONS=$(echo ${HTML} | xmllint --html --xpath "//div[contains(@id, 'go') and contains(@class, 'toggle')]/@id" - 2>/dev/null)
-    - VERSIONS=$(echo ${VERSIONS} | awk '{print $1, $2}')
-    - VERSIONS=$(echo ${VERSIONS} | grep -oP '(?<=go)(([0-9]{0,3}(\.?)){3})')
+    - VERSIONS=$(echo ${HTML} | xmllint --html --xpath "//div[contains(@id, 'go') and contains(@class, 'toggle')]/@id" - 2>/dev/null | awk '{print $1, $2}' | grep -oP '(?<=go)(([0-9]{0,3}(\.?)){3})')
     - echo "Fetching checksums for ${VERSIONS}"
     - |
       for VERSION in ${VERSIONS}; do
@@ -39,10 +37,13 @@ download:src:
   before_script:
     - apk add --no-cache coreutils
   script:
+    - cat sha256sum.txt
     - |
       while read -r line
       do
         set -- $line
+        echo "https://dl.google.com/go/go${2}.src.tar.gz"
+        echo "https://dl.google.com/go/go$2.src.tar.gz"
         wget "https://dl.google.com/go/go${2}.src.tar.gz"
       done <"sha256sum.txt"
     - sha256sum -c sha256sum.txt
