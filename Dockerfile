@@ -12,6 +12,7 @@ RUN apk add --no-cache --virtual .build bash gcc musl-dev openssl ca-certificate
  && apk del .build
 
 ARG VERSION
+FROM registry.gitlab.com/jitesoft/dockerfiles/alpine:latest
 LABEL maintainer="Johannes Tegnér <johannes@jitesoft.com>" \
       maintainer.org="Jitesoft" \
       maintainer.org.uri="https://jitesoft.com" \
