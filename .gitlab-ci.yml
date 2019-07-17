@@ -65,7 +65,7 @@ download:src:
     - registry.gitlab.com/jitesoft/dockerfiles/docker/dind:latest
   script:
     - docker build --build-arg VERSION=${VERSION} -t ${CI_REGISTRY_IMAGE}:${VERSION} .
-    - TAGS="${TAGS} ${VERSION} $(echo ${VERSION} | cut -d'.' -f1)"
+    - TAGS="${TAGS} ${VERSION} $(echo ${VERSION} | cut -d'.' -f1,2)"
     - |
       for tag in $TAGS; do
         docker tag ${CI_REGISTRY_IMAGE}:${VERSION} ${CI_REGISTRY_IMAGE}:${tag}
