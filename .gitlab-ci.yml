@@ -49,5 +49,34 @@ download:src:
     - sha256sum -c sha256sum.txt
   artifacts:
     paths:
-      - /*.src.tar.gz
+      - ${CI_PROJECT_DIR}/*.src.tar.gz
     expire_in: 1 day
+
+.build:
+  dependencies:
+    - download:src
+    - download:versions
+  stage: build
+  image: registry.gitlab.com/jitesoft/dockerfiles/docker:latest
+  services:
+    - registry.gitlab.com/jitesoft/dockerfiles/docker/dind:latest
+  script:
+    - echo "BUILDING ${VERSION} with file ${FILE}"
+    - docker build --build-arg VERSION=${VERSION} -t ${CI_REGISTRY_IMAGE}:${VERSION} .
+    - docker push ${CI_REGISTRY_IMAGE}:${VERSION}
+
+build:next:
+  extends: .build
+  before_script:
+    - echo ${CI_JOB_TOKEN} | docker login -u gitlab-ci-token registry.gitlab.com --password-stdin
+    - echo ${DOCKER_HUB_PASSWORD} | docker login -u ${DOCKER_HUB_USER} --password-stdin
+    - FILE=$(cat sha256sum.txt | awk '{print $2}' | head -1)
+    - VERSION=$(echo ${FILE} | grep -oP '([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3})')
+
+build:prev:
+  extends: .build
+  before_script:
+    - echo ${CI_JOB_TOKEN} | docker login -u gitlab-ci-token registry.gitlab.com --password-stdin
+    - echo ${DOCKER_HUB_PASSWORD} | docker login -u ${DOCKER_HUB_USER} --password-stdin
+    - FILE=$(cat sha256sum.txt | awk '{print $2}' | tail -1)
+    - VERSION=$(echo ${FILE} | grep -oP '([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3})')
