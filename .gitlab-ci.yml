@@ -11,17 +11,18 @@ download:versions:
     - apk add --no-cache libxml2-utils grep
   script:
     - HTML=$(wget -qO- https://golang.org/dl)
+    # For some reason, the build script would not work when running this with a pipe, so for now, it aught to be multi commands...
     - VERSIONS=$(echo ${HTML} | xmllint --html --xpath "//div[contains(@id, 'go') and contains(@class, 'toggle')]/@id" - 2>/dev/null)
-    - echo "1- ${VERSIONS}"
     - VERSIONS=$(echo ${VERSIONS} | awk '{print $1 $2}')
-    - echo "2- ${VERSIONS}"
     - VERSIONS=$(echo ${VERSIONS} | grep -oP '(?<=go)(([0-9]{0,3}(\.?)){3})')
-    - echo "3- ${VERSIONS}"
     - VERSIONS=$(echo ${VERSIONS} | awk '{print $1}')
     - echo "Fetching checksums for ${VERSIONS}"
     - |
-      for version in ${VERSIONS}; do
-        echo "${HTML}" | xmllint --html --xpath "//a[contains(@class, 'download') and contains(@href, '${version}.src.tar.gz') and not(contains(@class, 'downloadBox'))]/parent::td/following-sibling::td[5]/tt/text()" - 2>/dev/null | echo -e "$(xargs echo) go${version}.src.tar.gz" >> sha256sum.txt
+      for VERSION in ${VERSIONS}; do
+        echo "Fetching SHA for ${VERSION}"
+        OUTPUT=$(echo "${HTML}" | xmllint --html --xpath "//a[contains(@class, 'download') and contains(@href, '${VERSION}.src.tar.gz') and not(contains(@class, 'downloadBox'))]/parent::td/following-sibling::td[5]/tt/text()" - 2>/dev/null)
+        echo "SHA ${OUTPUT}"
+        echo "${OUTPUT} go${VERSION}.src.tar.gz" >> sha256sum.txt
       done
 
   artifacts:
@@ -42,8 +43,8 @@ download:src:
     - |
       while read -r line
       do
-        set -- $line
-        wget https://dl.google.com/go/go${1}.src.tar.gz
+        echo ${line}
+        echo ${line} | awk wget https://dl.google.com/go/go${2}.src.tar.gz
       done <"sha256sum.txt"
     - sha256sum -c sha256sum.txt
   artifacts:
