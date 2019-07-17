@@ -1,6 +1,7 @@
 stages:
   - pre
   - download
+  - build
 
 download:versions:
   image: registry.gitlab.com/jitesoft/dockerfiles/alpine:latest
