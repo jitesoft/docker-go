@@ -69,6 +69,7 @@ download:src:
 build:next:
   extends: .build
   before_script:
+    - apk add --no-cache grep
     - echo ${CI_JOB_TOKEN} | docker login -u gitlab-ci-token registry.gitlab.com --password-stdin
     - echo ${DOCKER_HUB_PASSWORD} | docker login -u ${DOCKER_HUB_USER} --password-stdin
     - FILE=$(cat sha256sum.txt | awk '{print $2}' | head -1)
@@ -77,6 +78,7 @@ build:next:
 build:prev:
   extends: .build
   before_script:
+    - apk add --no-cache grep
     - echo ${CI_JOB_TOKEN} | docker login -u gitlab-ci-token registry.gitlab.com --password-stdin
     - echo ${DOCKER_HUB_PASSWORD} | docker login -u ${DOCKER_HUB_USER} --password-stdin
     - FILE=$(cat sha256sum.txt | awk '{print $2}' | tail -1)
