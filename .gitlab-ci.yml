@@ -12,7 +12,12 @@ download:versions:
   script:
     - HTML=$(wget -qO- https://golang.org/dl)
     - VERSIONS=$(echo ${HTML} | xmllint --html --xpath "//div[contains(@id, 'go') and contains(@class, 'toggle')]/@id" - 2>/dev/null | cut -f 1-3 -d ' ' | grep -oP '(?<=go)(([0-9]{0,3}(\.?)){3})' | awk '{print $1}')
-    - for version in ${VERSIONS}; do echo ${HTML} | xmllint --html --xpath "//a[contains(@class, 'download') and contains(@href, '${version}.src.tar.gz') and not(contains(@class, 'downloadBox'))]/parent::td/following-sibling::td[5]/tt/text()" - 2>/dev/null | echo "$(xargs echo) go${version}.src.tar.gz" >> sha256sum.txt; done
+    - echo "Fetching checksums for ${VERSIONS}"
+    - |
+      for version in ${VERSIONS}; do
+        echo "${HTML}" | xmllint --html --xpath "//a[contains(@class, 'download') and contains(@href, '${version}.src.tar.gz') and not(contains(@class, 'downloadBox'))]/parent::td/following-sibling::td[5]/tt/text()" - 2>/dev/null | echo -e "$(xargs echo) go${version}.src.tar.gz" >> sha256sum.txt
+      done
+
   artifacts:
     paths:
       - sha256sum.txt
