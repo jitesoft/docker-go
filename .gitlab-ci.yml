@@ -65,7 +65,14 @@ download:src:
     - registry.gitlab.com/jitesoft/dockerfiles/docker/dind:latest
   script:
     - docker build --build-arg VERSION=${VERSION} -t ${CI_REGISTRY_IMAGE}:${VERSION} .
-    - docker push ${CI_REGISTRY_IMAGE}:${VERSION}
+    - TAGS="${TAGS} ${VERSION} $(echo ${VERSION} | cut -d'.' -f1)"
+    - |
+      for tag in $TAGS; do
+        docker tag ${CI_REGISTRY_IMAGE}:${VERSION} ${CI_REGISTRY_IMAGE}:${tag}
+        docker tag ${CI_REGISTRY_IMAGE}:${VERSION} jitesoft/go:${tag}
+        docker push ${CI_REGISTRY_IMAGE}:${tag}
+        docker push jitesoft/go:${tag}
+      done
   only:
     refs:
       - master
