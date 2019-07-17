@@ -1,3 +1,3 @@
-# Go - Bootstrap
+# Go
 
-This branch is only for the bootstrap image.
+Go on alpine linux.
