@@ -3,7 +3,7 @@ ARG VERSION
 
 COPY ./go${VERSION}.src.tar.gz /tmp/go.tar.gz
 
-RUN apk add --no-cache --virtual .build bash gcc musl-dev openssl \
+RUN apk add --no-cache --virtual .build bash gcc musl-dev openssl ca-certificates \
  && tar -C /usr/local -xzf /tmp/go.tar.gz \
  && rm -f /tmp/go.tar.gz \
  && cd /usr/local/go/src \
