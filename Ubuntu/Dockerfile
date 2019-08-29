@@ -29,7 +29,6 @@ COPY --from=build /usr/local/go /usr/local/go
 
 RUN  mkdir -p "${GOPATH}/src" "${GOPATH}/bin" \
  && chmod -R 777 ${GOPATH} \
- && [ ! -e /etc/nsswitch.conf ] && echo 'hosts: files dns' > /etc/nsswitch.conf \
  && go version
 
 WORKDIR /go
