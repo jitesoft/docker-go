@@ -4,7 +4,7 @@
 [![Back project](https://img.shields.io/badge/Open%20Collective-Tip%20the%20devs!-blue.svg)](https://opencollective.com/jitesoft-open-source)
 
 Docker image containing [Go](https://golang.org/).  
-This image contains nothing but go & git and is intended as a base image to derive from in other docker files.
+This image contains nothing but go and is intended as a base image to derive from in other docker files.
 
 ## Tags
 

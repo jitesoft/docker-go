@@ -1,5 +1,6 @@
 FROM registry.gitlab.com/jitesoft/dockerfiles/go/ubuntu:bootstrap as build
 ARG VERSION
+
 COPY ./go${VERSION}.src.tar.gz /tmp/go.tar.gz
 
 RUN apt-get update \
@@ -26,12 +27,9 @@ ENV PATH="/usr/local/go/bin:$PATH" \
 
 COPY --from=build /usr/local/go /usr/local/go
 
-RUN apt-get update \
- && apt-get install -y git \
- && rm -rf /var/lib/apt/lists/* \
- && [ ! -e /etc/nsswitch.conf ] && echo 'hosts: files dns' > /etc/nsswitch.conf \
- && mkdir -p "${GOPATH}/src" "${GOPATH}/bin" \
+RUN  mkdir -p "${GOPATH}/src" "${GOPATH}/bin" \
  && chmod -R 777 ${GOPATH} \
+ && [ ! -e /etc/nsswitch.conf ] && echo 'hosts: files dns' > /etc/nsswitch.conf \
  && go version
 
 WORKDIR /go
