@@ -1,4 +1,6 @@
 FROM registry.gitlab.com/jitesoft/dockerfiles/go/ubuntu:bootstrap as build
+ARG VERSION
+COPY ./go${VERSION}.src.tar.gz /tmp/go.tar.gz
 
 RUN apt-get update \
  && apt-get install -y gcc openssl ca-certificates \

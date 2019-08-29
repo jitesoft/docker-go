@@ -3,8 +3,8 @@
 [![Docker Pulls](https://img.shields.io/docker/pulls/jitesoft/go.svg)](https://cloud.docker.com/u/jitesoft/repository/docker/jitesoft/go)
 [![Back project](https://img.shields.io/badge/Open%20Collective-Tip%20the%20devs!-blue.svg)](https://opencollective.com/jitesoft-open-source)
 
-Docker image containing [Go](https://golang.org/) using alpine linux as base.  
-This image contains nothing but go and is intended as a base image to derive from in other docker files.
+Docker image containing [Go](https://golang.org/).  
+This image contains nothing but go & git and is intended as a base image to derive from in other docker files.
 
 ## Tags
 
@@ -12,6 +12,8 @@ This image contains nothing but go and is intended as a base image to derive fro
 
 * `1.12`, `1.12.<minor>` `latest`
 * `1.11`, `1.11.<minor>`
+* `1.12-ubuntu`, `1.12.<minor>-ubuntu` `latest-ubuntu`
+* `1.11-ubuntu`, `1.11.<minor>-ubuntu`
 
 ### GitLab
 
@@ -19,6 +21,11 @@ This image contains nothing but go and is intended as a base image to derive fro
   * `1.12`, `1.12.<minor>` `latest`
   * `1.11`, `1.11.<minor>`
   * `bootstrap` (go 1.4 for bootstrap compilation) 
+* `registry.gitlab.com/jitesoft/dockerfiles/go/ubuntu`
+  * `1.12`, `1.12.<minor>` `latest`
+  * `1.11`, `1.11.<minor>`
+  * `bootstrap` (go 1.4 for bootstrap compilation)
+  
 
 ## Docker files
 

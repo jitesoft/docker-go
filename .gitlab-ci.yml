@@ -68,7 +68,7 @@ download:src:
   script:
     - echo ${CI_JOB_TOKEN} | docker login -u gitlab-ci-token registry.gitlab.com --password-stdin
     - echo ${DOCKER_HUB_PASSWORD} | docker login -u ${DOCKER_HUB_USER} --password-stdin
-    - docker build --build-arg VERSION=${VERSION} --label "com.jitesoft.app.go.version=${VERSION}" -t ${CI_REGISTRY_IMAGE}:${VERSION} .
+    - docker build --build-arg VERSION=${VERSION} --label "com.jitesoft.app.go.version=${VERSION}" -t ${CI_REGISTRY_IMAGE}:${VERSION} -f Alpine/Dockerfile .
     - TAGS="${TAGS} ${VERSION} $(echo ${VERSION} | cut -d'.' -f1,2)"
     - |
       for tag in $TAGS; do
@@ -90,7 +90,7 @@ download:src:
   script:
     - echo ${CI_JOB_TOKEN} | docker login -u gitlab-ci-token registry.gitlab.com --password-stdin
     - echo ${DOCKER_HUB_PASSWORD} | docker login -u ${DOCKER_HUB_USER} --password-stdin
-    - docker build --build-arg VERSION=${VERSION} --label "com.jitesoft.app.go.version=${VERSION}" -t ${CI_REGISTRY_IMAGE}/ubuntu:${VERSION} -f ubuntu.Dockerfile .
+    - docker build --build-arg VERSION=${VERSION} --label "com.jitesoft.app.go.version=${VERSION}" -t ${CI_REGISTRY_IMAGE}/ubuntu:${VERSION} -f Ubuntu/Dockerfile .
     - TAGS="${TAGS} ${VERSION} $(echo ${VERSION} | cut -d'.' -f1,2)"
     - |
       for tag in $TAGS; do
