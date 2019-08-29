@@ -8,14 +8,14 @@ RUN apt-get update \
  && ./make.bash \
  && rm -rf /usr/local/go/pkg/bootstrap /usr/local/go/pkg/obj
 
-FROM registry.gitlab.com/jitesoft/dockerfiles/alpine:latest
+FROM registry.gitlab.com/jitesoft/dockerfiles/ubuntu:bionic
 LABEL maintainer="Johannes Tegnér <johannes@jitesoft.com>" \
       maintainer.org="Jitesoft" \
       maintainer.org.uri="https://jitesoft.com" \
       com.jitesoft.project.repo.type="git" \
       com.jitesoft.project.repo.uri="https://gitlab.com/jitesoft/dockerfiles/go" \
       com.jitesoft.project.repo.issues="https://gitlab.com/jitesoft/dockerfiles/go/issues" \
-      com.jitesoft.project.registry.uri="registry.gitlab.com/jitesoft/dockerfiles/go"
+      com.jitesoft.project.registry.uri="registry.gitlab.com/jitesoft/dockerfiles/go/ubuntu"
 
 ENV PATH="/usr/local/go/bin:$PATH" \
     GOPATH="/go" \

@@ -22,7 +22,7 @@ LABEL maintainer="Johannes Tegnér <johannes@jitesoft.com>" \
       com.jitesoft.project.repo.type="git" \
       com.jitesoft.project.repo.uri="https://gitlab.com/jitesoft/dockerfiles/go" \
       com.jitesoft.project.repo.issues="https://gitlab.com/jitesoft/dockerfiles/go/issues" \
-      com.jitesoft.project.registry.uri="registry.gitlab.com/jitesoft/dockerfiles/go" \
+      com.jitesoft.project.registry.uri="registry.gitlab.com/jitesoft/dockerfiles/go/ubuntu" \
       com.jitesoft.app.go.version="1.4-bootstrap"
 
 ENV CGO_ENABLED=0 \
@@ -30,6 +30,4 @@ ENV CGO_ENABLED=0 \
     GOARCH="amd64" \
     GOROOT_BOOTSTRAP="/usr/local/bootstrap" \
     PATH="/usr/local/bootstrap/bin:$PATH"
-
-RUN apt-get install -y ca-certificates
 COPY --from=pre-build  /usr/local/bootstrap /usr/local/bootstrap
