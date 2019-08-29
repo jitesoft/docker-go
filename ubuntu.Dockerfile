@@ -24,7 +24,7 @@ ENV PATH="/usr/local/go/bin:$PATH" \
 
 COPY --from=build /usr/local/go /usr/local/go
 
-RUN apt-get install -y git ca-certificates \
+RUN apt-get install -y git \
  && [ ! -e /etc/nsswitch.conf ] && echo 'hosts: files dns' > /etc/nsswitch.conf \
  && mkdir -p "${GOPATH}/src" "${GOPATH}/bin" \
  && chmod -R 777 ${GOPATH} \
