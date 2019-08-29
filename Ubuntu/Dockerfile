@@ -26,7 +26,9 @@ ENV PATH="/usr/local/go/bin:$PATH" \
 
 COPY --from=build /usr/local/go /usr/local/go
 
-RUN apt-get install -y git \
+RUN apt-get update \
+ && apt-get install -y git \
+ && rm -rf /var/lib/apt/lists/* \
  && [ ! -e /etc/nsswitch.conf ] && echo 'hosts: files dns' > /etc/nsswitch.conf \
  && mkdir -p "${GOPATH}/src" "${GOPATH}/bin" \
  && chmod -R 777 ${GOPATH} \
