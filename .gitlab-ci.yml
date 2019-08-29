@@ -177,7 +177,7 @@ build:bootstrap:ubuntu:
     - download:bootstrap
   image: registry.gitlab.com/jitesoft/dockerfiles/docker:latest
   script:
-    - docker build -t ${CI_REGISTRY_IMAGE}:bootstrap -f bootstrap-ubuntu.dockerfile .
+    - docker build -t ${CI_REGISTRY_IMAGE}/ubuntu:bootstrap -f bootstrap-ubuntu.dockerfile .
     - docker push ${CI_REGISTRY_IMAGE}/ubuntu:bootstrap
   only:
     refs:
