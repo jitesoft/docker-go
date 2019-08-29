@@ -29,7 +29,7 @@ ENV PATH="/usr/local/go/bin:$PATH" \
 
 COPY --from=build /usr/local/go /usr/local/go
 
-RUN apk add --no-cache git ca-certificates \
+RUN apk add --no-cache ca-certificates \
  && [ ! -e /etc/nsswitch.conf ] && echo 'hosts: files dns' > /etc/nsswitch.conf \
  && mkdir -p "${GOPATH}/src" "${GOPATH}/bin" \
  && chmod -R 777 ${GOPATH} \
