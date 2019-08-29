@@ -30,6 +30,4 @@ ENV CGO_ENABLED=0 \
     GOARCH="amd64" \
     GOROOT_BOOTSTRAP="/usr/local/bootstrap" \
     PATH="/usr/local/bootstrap/bin:$PATH"
-
-RUN apt-get install -y ca-certificates
 COPY --from=pre-build  /usr/local/bootstrap /usr/local/bootstrap
