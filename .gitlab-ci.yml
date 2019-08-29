@@ -66,6 +66,7 @@ download:src:
   stage: build
   image: registry.gitlab.com/jitesoft/dockerfiles/docker:latest
   script:
+    - echo ${CI_JOB_TOKEN} | docker login -u gitlab-ci-token registry.gitlab.com --password-stdin
     - docker build --build-arg VERSION=${VERSION} --label "com.jitesoft.app.go.version=${VERSION}" -t ${CI_REGISTRY_IMAGE}:${VERSION} .
     - TAGS="${TAGS} ${VERSION} $(echo ${VERSION} | cut -d'.' -f1,2)"
     - |
@@ -86,6 +87,7 @@ download:src:
   stage: build
   image: registry.gitlab.com/jitesoft/dockerfiles/docker:latest
   script:
+    - echo ${CI_JOB_TOKEN} | docker login -u gitlab-ci-token registry.gitlab.com --password-stdin
     - docker build --build-arg VERSION=${VERSION} --label "com.jitesoft.app.go.version=${VERSION}" -t ${CI_REGISTRY_IMAGE}/ubuntu:${VERSION} -f ubuntu.Dockerfile .
     - TAGS="${TAGS} ${VERSION} $(echo ${VERSION} | cut -d'.' -f1,2)"
     - |
