@@ -69,16 +69,16 @@ download:src:
   stage: build
   image: registry.gitlab.com/jitesoft/dockerfiles/docker:latest
   script:
-    - echo ${CI_JOB_TOKEN} | docker login -u gitlab-ci-token registry.gitlab.com --password-stdin
-    - echo ${DOCKER_HUB_PASSWORD} | docker login -u ${DOCKER_HUB_USER} --password-stdin
     - docker build --build-arg VERSION=${VERSION} --label "com.jitesoft.app.go.version=${VERSION}" -t ${CI_REGISTRY_IMAGE}:${VERSION} -f Alpine/Dockerfile .
     - TAGS="${TAGS} ${VERSION} $(echo ${VERSION} | cut -d'.' -f1,2)"
     - |
       for tag in $TAGS; do
         docker tag ${CI_REGISTRY_IMAGE}:${VERSION} ${CI_REGISTRY_IMAGE}:${tag}
         docker tag ${CI_REGISTRY_IMAGE}:${VERSION} jitesoft/go:${tag}
+        docker tag ${CI_REGISTRY_IMAGE}:${VERSION} quay.io/jitesoft/go:${tag}
         docker push ${CI_REGISTRY_IMAGE}:${tag}
         docker push jitesoft/go:${tag}
+        docker push quay.io/jitesoft/go:${tag}
       done
   only:
     refs:
@@ -91,16 +91,16 @@ download:src:
   stage: build
   image: registry.gitlab.com/jitesoft/dockerfiles/docker:latest
   script:
-    - echo ${CI_JOB_TOKEN} | docker login -u gitlab-ci-token registry.gitlab.com --password-stdin
-    - echo ${DOCKER_HUB_PASSWORD} | docker login -u ${DOCKER_HUB_USER} --password-stdin
     - docker build --build-arg VERSION=${VERSION} --label "com.jitesoft.app.go.version=${VERSION}" -t ${CI_REGISTRY_IMAGE}/ubuntu:${VERSION} -f Ubuntu/Dockerfile .
     - TAGS="${TAGS} ${VERSION} $(echo ${VERSION} | cut -d'.' -f1,2)"
     - |
       for tag in $TAGS; do
         docker tag ${CI_REGISTRY_IMAGE}/ubuntu:${VERSION} ${CI_REGISTRY_IMAGE}/ubuntu:${tag}
         docker tag ${CI_REGISTRY_IMAGE}/ubuntu:${VERSION} jitesoft/go:${tag}-ubuntu
+        docker tag ${CI_REGISTRY_IMAGE}/ubuntu:${VERSION} quay.io/jitesoft/go:${tag}-ubuntu
         docker push ${CI_REGISTRY_IMAGE}/ubuntu:${tag}
         docker push jitesoft/go:${tag}-ubuntu
+        docker push quay.io/jitesoft/go:${tag}-ubuntu
       done
   only:
     refs:
