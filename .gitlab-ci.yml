@@ -1,6 +1,7 @@
 include:
   - https://gitlab.com/jitesoft/gitlab-ci-lib/raw/master/container_scan.yml
 
+
 variables:
   DOCKER_BUILDKIT: 1
 
@@ -143,28 +144,40 @@ build:prev:alpine:
     - VERSION=$(echo ${FILE} | grep -oP '([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3})')
 
 scan:current:ubuntu:
+  needs:
+    - "build:current:ubuntu"
   stage: scan
   extends: .container_scanning
   variables:
     SCANNING_IMAGE_NAME: "${CI_REGISTRY_IMAGE}/ubuntu:latest"
+    GIT_STRATEGY: none
 
 scan:prev:ubuntu:
+  needs:
+    - "build:prev:ubuntu"
   stage: scan
   extends: .container_scanning
   variables:
     SCANNING_IMAGE_NAME: "${CI_REGISTRY_IMAGE}/ubuntu:prev"
+    GIT_STRATEGY: none
 
 scan:current:alpine:
+  needs:
+    - "build:current:alpine"
   stage: scan
   extends: .container_scanning
   variables:
     SCANNING_IMAGE_NAME: "${CI_REGISTRY_IMAGE}:latest"
+    GIT_STRATEGY: none
 
 scan:prev:alpine:
+  needs:
+    - "build:prev:alpine"
   stage: scan
   extends: .container_scanning
   variables:
     SCANNING_IMAGE_NAME: "${CI_REGISTRY_IMAGE}:prev"
+    GIT_STRATEGY: none
 
 ########################################################################################################################
 #                                                                                                                      #
