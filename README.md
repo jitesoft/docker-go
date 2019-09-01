@@ -18,21 +18,21 @@ This image contains nothing but go and is intended as a base image to derive fro
 ### GitLab
 
 * `registry.gitlab.com/jitesoft/dockerfiles/go`
-  * `1.12`, `1.12.<minor>` `latest`
-  * `1.11`, `1.11.<minor>`
-  * `bootstrap` (go 1.4 for bootstrap compilation) 
+    * `1.12`, `1.12.<minor>` `latest`
+    * `1.11`, `1.11.<minor>`
+    * `bootstrap` (go 1.4 for bootstrap compilation) 
 * `registry.gitlab.com/jitesoft/dockerfiles/go/ubuntu`
-  * `1.12`, `1.12.<minor>` `latest`
-  * `1.11`, `1.11.<minor>`
-  * `bootstrap` (go 1.4 for bootstrap compilation)
+    * `1.12`, `1.12.<minor>` `latest`
+    * `1.11`, `1.11.<minor>`
+    * `bootstrap` (go 1.4 for bootstrap compilation)
   
 ### Quay.io
 
 * `quay.io/jitesoft/go`
-* `1.12`, `1.12.<minor>` `latest`
-* `1.11`, `1.11.<minor>`
-* `1.12-ubuntu`, `1.12.<minor>-ubuntu` `latest-ubuntu`
-* `1.11-ubuntu`, `1.11.<minor>-ubuntu`
+    * `1.12`, `1.12.<minor>` `latest`
+    * `1.11`, `1.11.<minor>`
+    * `1.12-ubuntu`, `1.12.<minor>-ubuntu` `latest-ubuntu`
+    * `1.11-ubuntu`, `1.11.<minor>-ubuntu`
 
 ## Docker files
 
