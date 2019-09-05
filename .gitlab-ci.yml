@@ -69,7 +69,7 @@ download:src:
     - docker build --build-arg VERSION=${VERSION} --label "com.jitesoft.app.go.version=${VERSION}" -t ${CI_REGISTRY_IMAGE}:${VERSION} -f Alpine/Dockerfile .
     - VERSION_SHORT=""
     - OC=$(echo ${VERSION} | awk -F"." '{print NF-1}')
-    - [ "$OC" = "2" ] && VERSION_SHORT=$(echo ${VERSION} | cut -d'.' -f1,2);
+    - if [ "$OC" = "2" ]; then VERSION_SHORT=$(echo ${VERSION} | cut -d'.' -f1,2); fi
     - TAGS="${TAGS} ${VERSION} ${VERSION_SHORT}"
     - |
       for tag in $TAGS; do
