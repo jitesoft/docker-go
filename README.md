@@ -10,28 +10,34 @@ This image contains nothing but go and is intended as a base image to derive fro
 
 ### Docker Hub
 
-* `1.12`, `1.12.<minor>` `latest`
-* `1.11`, `1.11.<minor>`
-* `1.12-ubuntu`, `1.12.<minor>-ubuntu` `latest-ubuntu`
-* `1.11-ubuntu`, `1.11.<minor>-ubuntu`
+* `jitesoft/go`
+    * `1.13-ubunntu`, `latest-ubuntu`
+    * `1.12`, `1.12.<minor>`
+    * `1.11`, `1.11.<minor>`
+    * `1.12-ubuntu`, `1.12.<minor>-ubuntu`
+    * `1.11-ubuntu`, `1.11.<minor>-ubuntu`
 
 ### GitLab
 
 * `registry.gitlab.com/jitesoft/dockerfiles/go`
-    * `1.12`, `1.12.<minor>` `latest`
+    * `1.13-ubunntu`, `latest-ubuntu`
+    * `1.12`, `1.12.<minor>`
     * `1.11`, `1.11.<minor>`
     * `bootstrap` (go 1.4 for bootstrap compilation) 
 * `registry.gitlab.com/jitesoft/dockerfiles/go/ubuntu`
-    * `1.12`, `1.12.<minor>` `latest`
+    * `1.13-ubunntu`, `latest-ubuntu`
+    * `1.12`, `1.12.<minor>` 
     * `1.11`, `1.11.<minor>`
     * `bootstrap` (go 1.4 for bootstrap compilation)
   
 ### Quay.io
 
 * `quay.io/jitesoft/go`
-    * `1.12`, `1.12.<minor>` `latest`
+    * `1.13`, `latest`
+    * `1.12`, `1.12.<minor>`
     * `1.11`, `1.11.<minor>`
-    * `1.12-ubuntu`, `1.12.<minor>-ubuntu` `latest-ubuntu`
+    * `1.13-ubunntu`, `latest-ubuntu`
+    * `1.12-ubuntu`, `1.12.<minor>-ubuntu`
     * `1.11-ubuntu`, `1.11.<minor>-ubuntu`
 
 ## Docker files
