@@ -67,7 +67,10 @@ download:src:
   image: registry.gitlab.com/jitesoft/dockerfiles/docker:latest
   script:
     - docker build --build-arg VERSION=${VERSION} --label "com.jitesoft.app.go.version=${VERSION}" -t ${CI_REGISTRY_IMAGE}:${VERSION} -f Alpine/Dockerfile .
-    - TAGS="${TAGS} ${VERSION} $(echo ${VERSION} | cut -d'.' -f1,2)"
+    - VERSION_SHORT=""
+    - OC=$(echo ${VERSION} | awk -F"." '{print NF-1}')
+    - [ "$OC" = "2" ] && VERSION_SHORT=$(echo ${VERSION} | cut -d'.' -f1,2);
+    - TAGS="${TAGS} ${VERSION} ${VERSION_SHORT}"
     - |
       for tag in $TAGS; do
         docker tag ${CI_REGISTRY_IMAGE}:${VERSION} ${CI_REGISTRY_IMAGE}:${tag}
