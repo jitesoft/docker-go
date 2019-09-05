@@ -1,6 +1,7 @@
 # Go
 
 [![Docker Pulls](https://img.shields.io/docker/pulls/jitesoft/go.svg)](https://cloud.docker.com/u/jitesoft/repository/docker/jitesoft/go)
+[![pipeline status](https://gitlab.com/jitesoft/dockerfiles/go/badges/master/pipeline.svg)](https://gitlab.com/jitesoft/dockerfiles/go/commits/master)
 [![Back project](https://img.shields.io/badge/Open%20Collective-Tip%20the%20devs!-blue.svg)](https://opencollective.com/jitesoft-open-source)
 
 Docker image containing [Go](https://golang.org/).  
