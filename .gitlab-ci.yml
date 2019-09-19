@@ -166,7 +166,6 @@ build:bootstrap:alpine:
     - download:bootstrap
   image: registry.gitlab.com/jitesoft/dockerfiles/docker:latest
   script:
-    - echo ${CI_JOB_TOKEN} | docker login -u gitlab-ci-token registry.gitlab.com --password-stdin
     - docker buildx build --platform ${ARCHITECTURE} --push -t ${CI_REGISTRY_IMAGE}:bootstrap -f bootstrap.dockerfile .
   only:
     refs:
@@ -179,7 +178,6 @@ build:bootstrap:ubuntu:
     - download:bootstrap
   image: registry.gitlab.com/jitesoft/dockerfiles/docker:latest
   script:
-    - echo ${CI_JOB_TOKEN} | docker login -u gitlab-ci-token registry.gitlab.com --password-stdin
     - docker buildx build --platform ${ARCHITECTURE} --push -t ${CI_REGISTRY_IMAGE}/ubuntu:bootstrap -f bootstrap-ubuntu.dockerfile .
   only:
     refs:
