@@ -1,11 +1,11 @@
 FROM registry.gitlab.com/jitesoft/dockerfiles/go/ubuntu:bootstrap as build
 ARG VERSION
 ARG TARGETPLATFORM
-ENV GOARCH="${TARGETPLATFORM}"
 
 COPY ./go${VERSION}.src.tar.gz /tmp/go.tar.gz
 
-RUN apt-get update \
+RUN export GOARCH="${TARGETPLATFORM##*/}" \
+ && apt-get update \
  && apt-get install -y gcc openssl ca-certificates \
  && tar -C /usr/local -xzf /tmp/go.tar.gz \
  && rm -f /tmp/go.tar.gz \

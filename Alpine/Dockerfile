@@ -1,11 +1,11 @@
 FROM registry.gitlab.com/jitesoft/dockerfiles/go:bootstrap as build
 ARG VERSION
 ARG TARGETPLATFORM
-ENV GOARCH="${TARGETPLATFORM}"
 
 COPY ./go${VERSION}.src.tar.gz /tmp/go.tar.gz
 
-RUN apk add --no-cache --virtual .build bash gcc musl-dev openssl ca-certificates \
+RUN export GOARCH="${TARGETPLATFORM##*/}" \
+ && apk add --no-cache --virtual .build bash gcc musl-dev openssl ca-certificates \
  && tar -C /usr/local -xzf /tmp/go.tar.gz \
  && rm -f /tmp/go.tar.gz \
  && cd /usr/local/go/src \
