@@ -162,7 +162,7 @@ download:bootstrap:
 build:bootstrap:alpine:
   stage: build
   variables:
-    ARCHITECTURES: "linux/amd64,linux/arm64,linux/ppc64le,linux/s390x"
+    ARCHITECTURES: "linux/amd64,linux/arm64"
   dependencies:
     - download:bootstrap
   image: registry.gitlab.com/jitesoft/dockerfiles/docker/buildx:latest
@@ -176,7 +176,7 @@ build:bootstrap:alpine:
 build:bootstrap:ubuntu:
   stage: build
   variables:
-    ARCHITECTURES: "linux/amd64,linux/arm64,linux/ppc64le,linux/s390x"
+    ARCHITECTURES: "linux/amd64,linux/arm64"
   dependencies:
     - download:bootstrap
   image: registry.gitlab.com/jitesoft/dockerfiles/docker/buildx:latest
