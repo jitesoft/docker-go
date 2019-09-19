@@ -6,6 +6,8 @@
 
 Docker image containing [Go](https://golang.org/).  
 This image contains nothing but go and is intended as a base image to derive from in other docker files.
+This means that the user running go is currently a root user. Make sure you create a new user when deriving from the
+image so that your user does not run as root if not actually required.
 
 ## Tags
 
