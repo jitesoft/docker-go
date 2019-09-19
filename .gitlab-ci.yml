@@ -100,6 +100,12 @@ download:src:
     - if [ "$OC" = "2" ]; then VERSION_SHORT=$(echo ${VERSION} | cut -d'.' -f1,2); fi
     - TAGS="${TAGS},${VERSION},${VERSION_SHORT}"
     - TAG_LIST=$(./helper "${CI_REGISTRY_IMAGE}/ubuntu", "${TAGS}")
+    - echo "docker buildx build \
+      --platform ${ARCHITECTURES} \
+      --progress plain \
+      --push ${TAG_LIST} \
+      --build-arg VERSION=${VERSION} \
+      -f Ubuntu/Dockerfile ."
     - docker buildx build \
       --platform ${ARCHITECTURES} \
       --progress plain \
@@ -119,7 +125,6 @@ build:current:ubuntu:
     - apk add --no-cache grep
     - FILE=$(cat sha256sum.txt | awk '{print $2}' | head -1)
     - VERSION=$(echo ${FILE} | grep -oP '([0-9]{0,3}[.][0-9]{0,3}([.][0-9]{0,3})?)(?=.src.tar.gz)')
-
 
 build:prev:ubuntu:
   variables:
