@@ -1,5 +1,7 @@
 FROM registry.gitlab.com/jitesoft/dockerfiles/go:bootstrap as build
 ARG VERSION
+ARG TARGETPLATFORM
+ENV GOARCH="${TARGETPLATFORM}"
 
 COPY ./go${VERSION}.src.tar.gz /tmp/go.tar.gz
 
@@ -21,11 +23,12 @@ LABEL maintainer="Johannes Tegnér <johannes@jitesoft.com>" \
       com.jitesoft.project.registry.uri="registry.gitlab.com/jitesoft/dockerfiles/go"
 # Redefine version inside the build context.
 ARG VERSION
+ARG TARGETPLATFORM
 
 ENV PATH="/usr/local/go/bin:$PATH" \
     GOPATH="/go" \
     GOOS="linux" \
-    GOARCH="amd64"
+    GOARCH="${TARGETPLATFORM}"
 
 COPY --from=build /usr/local/go /usr/local/go
 
