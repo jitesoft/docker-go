@@ -73,6 +73,8 @@ download:src:
     - if [ "$OC" = "2" ]; then VERSION_SHORT=$(echo ${VERSION} | cut -d'.' -f1,2); fi
     - TAGS="${TAGS},${VERSION},${VERSION_SHORT}"
     - TAG_LIST=$(./helper "${CI_REGISTRY_IMAGE}", "${TAGS}")
+    - echo "Building for architectures ${ARCHITECTURES}."
+    - echo "[dbg] Tags - ${TAG_LIST}"
     - docker buildx build \
       --platform ${ARCHITECTURES} \
       --progress plain \
@@ -111,7 +113,7 @@ download:src:
 
 build:current:ubuntu:
   variables:
-    TAGS: "latest,"
+    TAGS: "latest"
   extends: .build:ubuntu
   before_script:
     - apk add --no-cache grep
@@ -121,7 +123,7 @@ build:current:ubuntu:
 
 build:prev:ubuntu:
   variables:
-    TAGS: "prev,"
+    TAGS: "prev"
   extends: .build:ubuntu
   before_script:
     - apk add --no-cache grep
@@ -130,7 +132,7 @@ build:prev:ubuntu:
 
 build:current:alpine:
   variables:
-    TAGS: "latest,"
+    TAGS: "latest"
   extends: .build:alpine
   before_script:
     - apk add --no-cache grep
@@ -139,7 +141,7 @@ build:current:alpine:
 
 build:prev:alpine:
   variables:
-    TAGS: "prev,"
+    TAGS: "prev"
   extends: .build:alpine
   before_script:
     - apk add --no-cache grep
