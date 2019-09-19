@@ -145,7 +145,6 @@ download:bootstrap:
   stage: download
   image: registry.gitlab.com/jitesoft/dockerfiles/alpine:latest
   variables:
-    ARCHITECTURES: "linux/amd64,linux/arm64,linux/ppc64le,linux/s390x,linux/386"
     GIT_STRATEGY: none
     SHA: "f4ff5b5eb3a3cae1c993723f3eab519c5bae18866b5e5f96fe1102f0cb5c3e52  go1.4-bootstrap-20171003.tar.gz"
   script:
@@ -162,6 +161,8 @@ download:bootstrap:
 
 build:bootstrap:alpine:
   stage: build
+  variables:
+    ARCHITECTURES: "linux/amd64,linux/arm64,linux/ppc64le,linux/s390x,linux/386"
   dependencies:
     - download:bootstrap
   image: registry.gitlab.com/jitesoft/dockerfiles/docker/buildx:latest
@@ -174,6 +175,8 @@ build:bootstrap:alpine:
 
 build:bootstrap:ubuntu:
   stage: build
+  variables:
+    ARCHITECTURES: "linux/amd64,linux/arm64,linux/ppc64le,linux/s390x,linux/386"
   dependencies:
     - download:bootstrap
   image: registry.gitlab.com/jitesoft/dockerfiles/docker/buildx:latest
