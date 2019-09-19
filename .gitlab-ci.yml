@@ -145,6 +145,7 @@ download:bootstrap:
   stage: download
   image: registry.gitlab.com/jitesoft/dockerfiles/alpine:latest
   variables:
+    ARCHITECTURES: "linux/amd64,linux/arm64,linux/ppc64le,linux/s390x,linux/386"
     GIT_STRATEGY: none
     SHA: "f4ff5b5eb3a3cae1c993723f3eab519c5bae18866b5e5f96fe1102f0cb5c3e52  go1.4-bootstrap-20171003.tar.gz"
   script:
@@ -166,8 +167,7 @@ build:bootstrap:alpine:
   image: registry.gitlab.com/jitesoft/dockerfiles/docker:latest
   script:
     - echo ${CI_JOB_TOKEN} | docker login -u gitlab-ci-token registry.gitlab.com --password-stdin
-    - docker build -t ${CI_REGISTRY_IMAGE}:bootstrap -f bootstrap.dockerfile .
-    - docker push ${CI_REGISTRY_IMAGE}:bootstrap
+    - docker buildx build --platform ${ARCHITECTURE} --push -t ${CI_REGISTRY_IMAGE}:bootstrap -f bootstrap.dockerfile .
   only:
     refs:
       - bootstrap
@@ -179,8 +179,7 @@ build:bootstrap:ubuntu:
   image: registry.gitlab.com/jitesoft/dockerfiles/docker:latest
   script:
     - echo ${CI_JOB_TOKEN} | docker login -u gitlab-ci-token registry.gitlab.com --password-stdin
-    - docker build -t ${CI_REGISTRY_IMAGE}/ubuntu:bootstrap -f bootstrap-ubuntu.dockerfile .
-    - docker push ${CI_REGISTRY_IMAGE}/ubuntu:bootstrap
+    - docker buildx build --platform ${ARCHITECTURE} --push -t ${CI_REGISTRY_IMAGE}:bootstrap -f bootstrap-ubuntu.dockerfile .
   only:
     refs:
       - bootstrap
