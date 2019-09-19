@@ -73,14 +73,7 @@ download:src:
     - if [ "$OC" = "2" ]; then VERSION_SHORT=$(echo ${VERSION} | cut -d'.' -f1,2); fi
     - TAGS="${TAGS},${VERSION},${VERSION_SHORT}"
     - TAG_LIST=$(./helper "${CI_REGISTRY_IMAGE}", "${TAGS}")
-    - echo "Building for architectures ${ARCHITECTURES}."
-    - echo "[dbg] Tags - ${TAG_LIST}"
-    - docker buildx build \
-      --platform ${ARCHITECTURES} \
-      --progress plain \
-      --push ${TAG_LIST} \
-      --build-arg VERSION=${VERSION} \
-      -f Alpine/Dockerfile .
+    - docker buildx build --platform ${ARCHITECTURES} --progress plain --push ${TAG_LIST} --build-arg VERSION=${VERSION} -f Alpine/Dockerfile .
   only:
     refs:
       - master
@@ -100,18 +93,7 @@ download:src:
     - if [ "$OC" = "2" ]; then VERSION_SHORT=$(echo ${VERSION} | cut -d'.' -f1,2); fi
     - TAGS="${TAGS},${VERSION},${VERSION_SHORT}"
     - TAG_LIST=$(./helper "${CI_REGISTRY_IMAGE}/ubuntu", "${TAGS}")
-    - echo "docker buildx build \
-      --platform ${ARCHITECTURES} \
-      --progress plain \
-      --push ${TAG_LIST} \
-      --build-arg VERSION=${VERSION} \
-      -f Ubuntu/Dockerfile ."
-    - docker buildx build \
-      --platform ${ARCHITECTURES} \
-      --progress plain \
-      --push ${TAG_LIST} \
-      --build-arg VERSION=${VERSION} \
-      -f Ubuntu/Dockerfile .
+    - docker buildx build --platform ${ARCHITECTURES} --progress plain --push ${TAG_LIST} --build-arg VERSION=${VERSION} -f Ubuntu/Dockerfile .
   only:
     refs:
       - master
