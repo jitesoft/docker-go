@@ -22,12 +22,9 @@ LABEL maintainer="Johannes Tegnér <johannes@jitesoft.com>" \
       com.jitesoft.project.repo.uri="https://gitlab.com/jitesoft/dockerfiles/go" \
       com.jitesoft.project.repo.issues="https://gitlab.com/jitesoft/dockerfiles/go/issues" \
       com.jitesoft.project.registry.uri="registry.gitlab.com/jitesoft/dockerfiles/go" \
-      com.jitesoft.app.go.version=${VERSION}"
+      com.jitesoft.app.go.version="${VERSION}"
 
-# Redefine version inside the build context.
-ARG VERSION
 ARG TARGETPLATFORM
-
 ENV PATH="/usr/local/go/bin:$PATH" \
     GOPATH="/go" \
     GOOS="linux" \

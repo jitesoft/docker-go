@@ -22,7 +22,7 @@ LABEL maintainer="Johannes Tegnér <johannes@jitesoft.com>" \
       com.jitesoft.project.repo.uri="https://gitlab.com/jitesoft/dockerfiles/go" \
       com.jitesoft.project.repo.issues="https://gitlab.com/jitesoft/dockerfiles/go/issues" \
       com.jitesoft.project.registry.uri="registry.gitlab.com/jitesoft/dockerfiles/go/ubuntu" \
-      com.jitesoft.app.go.version=${VERSION}"
+      com.jitesoft.app.go.version="${VERSION}"
 
 ARG TARGETPLATFORM
 ENV PATH="/usr/local/go/bin:$PATH" \
