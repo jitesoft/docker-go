@@ -171,6 +171,7 @@ build:bootstrap:alpine:
   only:
     refs:
       - bootstrap
+  tags: [ jitesoft, buildx, amd64, arm64, s390x, ppc64le, i386 ]
 
 build:bootstrap:ubuntu:
   stage: build
@@ -183,3 +184,4 @@ build:bootstrap:ubuntu:
   only:
     refs:
       - bootstrap
+  tags: [ jitesoft, buildx, amd64, arm64, s390x, ppc64le, i386 ]
