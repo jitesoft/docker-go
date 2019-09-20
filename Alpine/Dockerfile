@@ -1,19 +1,47 @@
-FROM registry.gitlab.com/jitesoft/dockerfiles/go:bootstrap as build
+#
+# Initial pass. Build latest bootstrap version for amd64.
+#
+FROM --platform $BUILDPLATFORM registry.gitlab.com/jitesoft/dockerfiles/go:bootstrap as bootstrap-chain
 ARG VERSION
 ARG TARGETPLATFORM
+ARG BUILDPLATFORM
+ENV GOARCH="${TARGETPLATFORM}"
 
 COPY ./go${VERSION}.src.tar.gz /tmp/go.tar.gz
 
-RUN export GOARCH="${TARGETPLATFORM##*/}" \
- && apk add --no-cache --virtual .build bash gcc musl-dev openssl ca-certificates \
+RUN apk add --no-cache --virtual .build bash gcc musl-dev openssl ca-certificates \
+ && tar -C /usr/local -xzf /tmp/go.tar.gz \
+ && rm -f /tmp/go.tar.gz \
+ && cd /usr/local/go/src \
+ && ./bootstrap.bash
+
+#
+# Pass 2. Build source for correct architecture using the binary created from the prev pass.
+#
+FROM --platform $TARGETPLATFORM registry.gitlab.com/jitesoft/dockerfiles/alpine as build
+ARG VERSION
+ARG TARGETPLATFORM
+ARG BUILDPLATFORM
+ENV GOARCH="${TARGETPLATFORM}" \
+    CGO_ENABLED=0 \
+    GOOS="linux" \
+    GOROOT_BOOTSTRAP="/usr/local/bootstrap" \
+    PATH="/usr/local/bootstrap/bin:$PATH"
+
+COPY ./go${VERSION}.src.tar.gz /tmp/go.tar.gz
+COPY --from=bootstrap-chain /usr/local/bootstrap /usr/local/bootstrap
+
+RUN apk add --no-cache --virtual .build bash gcc musl-dev openssl ca-certificates \
  && tar -C /usr/local -xzf /tmp/go.tar.gz \
  && rm -f /tmp/go.tar.gz \
  && cd /usr/local/go/src \
  && ./make.bash \
- && rm -rf /usr/local/go/pkg/bootstrap /usr/local/go/pkg/obj \
- && apk del .build
+ && rm -rf /usr/local/go/pkg/bootstrap /usr/local/go/pkg/obj
 
-FROM registry.gitlab.com/jitesoft/dockerfiles/alpine:latest
+#
+# Pass 3. Copy binaries from the second pass as the final image.
+#
+FROM --platform $TARGETPLATFORM registry.gitlab.com/jitesoft/dockerfiles/alpine:latest
 ARG VERSION
 LABEL maintainer="Johannes Tegnér <johannes@jitesoft.com>" \
       maintainer.org="Jitesoft" \
