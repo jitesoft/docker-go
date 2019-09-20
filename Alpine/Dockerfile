@@ -1,9 +1,4 @@
 # syntax=docker/dockerfile:experimental
-
-#
-# Initial pass. Build latest bootstrap version for amd64.
-#
-ARG BUILDPLATFORM
 FROM --platform $BUILDPLATFORM registry.gitlab.com/jitesoft/dockerfiles/go:bootstrap as bootstrap-chain
 ARG VERSION
 ARG TARGETPLATFORM
@@ -17,9 +12,7 @@ RUN apk add --no-cache --virtual .build bash gcc musl-dev openssl ca-certificate
  && cd /usr/local/go/src \
  && ./bootstrap.bash
 
-#
-# Pass 2. Build source for correct architecture using the binary created from the prev pass.
-#
+
 FROM registry.gitlab.com/jitesoft/dockerfiles/alpine as build
 ARG VERSION
 ARG TARGETPLATFORM
@@ -40,9 +33,7 @@ RUN apk add --no-cache --virtual .build bash gcc musl-dev openssl ca-certificate
  && ./make.bash \
  && rm -rf /usr/local/go/pkg/bootstrap /usr/local/go/pkg/obj
 
-#
-# Pass 3. Copy binaries from the second pass as the final image.
-#
+
 FROM registry.gitlab.com/jitesoft/dockerfiles/alpine:latest
 ARG VERSION
 LABEL maintainer="Johannes Tegnér <johannes@jitesoft.com>" \

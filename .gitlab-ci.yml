@@ -66,6 +66,7 @@ download:src:
   stage: build
   image: registry.gitlab.com/jitesoft/dockerfiles/docker/buildx:latest
   script:
+    - DOCKER_BUILDKIT=1
     - wget https://gist.githubusercontent.com/Johannestegner/093e8053eabd795ed84b83e9610aed6b/raw/helper.sh -O helper
     - chmod +x helper
     - VERSION_SHORT=""
@@ -86,6 +87,7 @@ download:src:
   stage: build
   image: registry.gitlab.com/jitesoft/dockerfiles/docker/buildx:latest
   script:
+    - DOCKER_BUILDKIT=1
     - wget https://gist.githubusercontent.com/Johannestegner/093e8053eabd795ed84b83e9610aed6b/raw/helper.sh -O helper
     - chmod +x helper
     - VERSION_SHORT=""
