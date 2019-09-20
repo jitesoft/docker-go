@@ -1,3 +1,5 @@
+# syntax=docker/dockerfile:experimental
+
 #
 # Initial pass. Build latest bootstrap version for amd64.
 #

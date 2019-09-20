@@ -1,5 +1,5 @@
-ARG BUILDPLATFORM
-FROM --platform $BUILDPLATFORM registry.gitlab.com/jitesoft/dockerfiles/go/ubuntu:bootstrap as bootstrap-chain
+# syntax=docker/dockerfile:experimental
+FROM $BUILDPLATFORM registry.gitlab.com/jitesoft/dockerfiles/go/ubuntu:bootstrap as bootstrap-chain
 ARG VERSION
 ARG TARGETPLATFORM
 ENV GOARCH="${TARGETPLATFORM}"
@@ -28,7 +28,7 @@ RUN export GOARCH="${TARGETPLATFORM##*/}" \
  && tar -C /usr/local -xzf /tmp/go.tar.gz \
  && rm -f /tmp/go.tar.gz \
  && cd /usr/local/go/src \
- && ./make.bash \
+ && taskset 1 ./make.bash \
  && rm -rf /usr/local/go/pkg/bootstrap /usr/local/go/pkg/obj
 
 FROM registry.gitlab.com/jitesoft/dockerfiles/ubuntu:bionic
