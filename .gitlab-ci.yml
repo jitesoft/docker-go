@@ -49,7 +49,7 @@ build:bootstrap:ubuntu:
   image: registry.gitlab.com/jitesoft/dockerfiles/docker:latest
   script:
     - docker build -t ${CI_REGISTRY_IMAGE}/ubuntu:bootstrap -f Ubuntu/Dockerfile .
-    - docker push ${CI_REGISTRY_IMAGE}/ubuntu:bootstrap
+    - docker push -t ${CI_REGISTRY_IMAGE}/ubuntu:bootstrap
   only:
     refs:
       - bootstrap
