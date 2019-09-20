@@ -1,10 +1,10 @@
 #
 # Initial pass. Build latest bootstrap version for amd64.
 #
+ARG BUILDPLATFORM
 FROM --platform $BUILDPLATFORM registry.gitlab.com/jitesoft/dockerfiles/go:bootstrap as bootstrap-chain
 ARG VERSION
 ARG TARGETPLATFORM
-ARG BUILDPLATFORM
 ENV GOARCH="${TARGETPLATFORM}"
 
 COPY ./go${VERSION}.src.tar.gz /tmp/go.tar.gz
@@ -18,7 +18,7 @@ RUN apk add --no-cache --virtual .build bash gcc musl-dev openssl ca-certificate
 #
 # Pass 2. Build source for correct architecture using the binary created from the prev pass.
 #
-FROM --platform $TARGETPLATFORM registry.gitlab.com/jitesoft/dockerfiles/alpine as build
+FROM registry.gitlab.com/jitesoft/dockerfiles/alpine as build
 ARG VERSION
 ARG TARGETPLATFORM
 ARG BUILDPLATFORM
@@ -41,7 +41,7 @@ RUN apk add --no-cache --virtual .build bash gcc musl-dev openssl ca-certificate
 #
 # Pass 3. Copy binaries from the second pass as the final image.
 #
-FROM --platform $TARGETPLATFORM registry.gitlab.com/jitesoft/dockerfiles/alpine:latest
+FROM registry.gitlab.com/jitesoft/dockerfiles/alpine:latest
 ARG VERSION
 LABEL maintainer="Johannes Tegnér <johannes@jitesoft.com>" \
       maintainer.org="Jitesoft" \
