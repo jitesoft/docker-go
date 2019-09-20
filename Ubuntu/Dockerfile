@@ -2,8 +2,7 @@
 FROM registry.gitlab.com/jitesoft/dockerfiles/ubuntu:bionic as pre-build
 ARG TARGETPLATFORM
 ENV CGO_ENABLED=0 \
-    GOOS="linux" \
-    GOARCH="amd64"
+    GOOS="linux"
 
 COPY ./go1.4-bootstrap-20171003.tar.gz /tmp/bootstrap.tar.gz
 
@@ -14,7 +13,7 @@ RUN export GOARCH="${TARGETPLATFORM##*/}" \
  && mv /tmp/go /usr/local/bootstrap \
  && cd /usr/local/bootstrap/src \
  && chmod +x make.bash \
- && ./make.bash
+ && taskset 1 ./make.bash
 
 # Stage 2. Copy bootstrap exec to the actual bootstrap image.
 FROM registry.gitlab.com/jitesoft/dockerfiles/ubuntu:bionic
@@ -31,4 +30,5 @@ ENV CGO_ENABLED=0 \
     GOOS="linux" \
     GOROOT_BOOTSTRAP="/usr/local/bootstrap" \
     PATH="/usr/local/bootstrap/bin:$PATH"
+
 COPY --from=pre-build  /usr/local/bootstrap /usr/local/bootstrap
