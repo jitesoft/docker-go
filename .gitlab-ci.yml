@@ -31,28 +31,26 @@ download:bootstrap:
 
 build:bootstrap:alpine:
   stage: build
-  variables:
-    ARCHITECTURES: "linux/amd64,linux/arm64"
   dependencies:
     - download:bootstrap
-  image: registry.gitlab.com/jitesoft/dockerfiles/docker/buildx:latest
+  image: registry.gitlab.com/jitesoft/dockerfiles/docker:latest
   script:
-    - docker buildx build --platform ${ARCHITECTURES} --push -t ${CI_REGISTRY_IMAGE}:bootstrap -f Alpine/Dockerfile .
+    - docker build ${CI_REGISTRY_IMAGE}:bootstrap -f Alpine/Dockerfile .
+    - docker push ${CI_REGISTRY_IMAGE}:bootstrap
   only:
     refs:
       - bootstrap
-  tags: [ jitesoft, buildx, amd64, arm64, s390x, ppc64le, i386 ]
+  tags: [ jitesoft, amd64 ]
 
 build:bootstrap:ubuntu:
   stage: build
-  variables:
-    ARCHITECTURES: "linux/amd64,linux/arm64"
   dependencies:
     - download:bootstrap
-  image: registry.gitlab.com/jitesoft/dockerfiles/docker/buildx:latest
+  image: registry.gitlab.com/jitesoft/dockerfiles/docker:latest
   script:
-    - docker buildx build --platform ${ARCHITECTURES} --push -t ${CI_REGISTRY_IMAGE}/ubuntu:bootstrap -f Ubuntu/Dockerfile .
+    - docker build -t ${CI_REGISTRY_IMAGE}/ubuntu:bootstrap -f Ubuntu/Dockerfile .
+    - docker push ${CI_REGISTRY_IMAGE}/ubuntu:bootstrap
   only:
     refs:
       - bootstrap
-  tags: [ jitesoft, buildx, amd64, arm64, s390x, ppc64le, i386 ]
+  tags: [ jitesoft, amd64 ]
