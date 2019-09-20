@@ -1,136 +1,6 @@
 stages:
-  - pre
   - download
   - build
-
-download:versions:
-  image: registry.gitlab.com/jitesoft/dockerfiles/alpine:latest
-  stage: pre
-  variables:
-    GIT_STRATEGY: none
-  before_script:
-    - apk add --no-cache libxml2-utils grep
-  script:
-    - HTML=$(wget -qO- https://golang.org/dl)
-    # For some reason, the build script would not work when running this with a pipe, so for now, it aught to be multi commands...
-    - VERSIONS=$(echo ${HTML} | xmllint --html --xpath "//div[contains(@id, 'go') and contains(@class, 'toggle')]/@id" - 2>/dev/null)
-    - VERSIONS=$(echo ${VERSIONS} | awk '{print $1, $2}')
-    - VERSIONS=$(echo ${VERSIONS} | grep -oP '(?<=go)(([0-9]{0,3}(\.?)){3})')
-    - |
-      for VERSION in ${VERSIONS}; do
-        OUTPUT=$(echo "${HTML}" | xmllint --html --xpath "//a[contains(@class, 'download') and contains(@href, '${VERSION}.src.tar.gz') and not(contains(@class, 'downloadBox'))]/parent::td/following-sibling::td[5]/tt/text()" - 2>/dev/null)
-        echo "${OUTPUT} go${VERSION}.src.tar.gz" >> sha256sum.txt
-      done
-  artifacts:
-    paths:
-      - sha256sum.txt
-    expire_in: 1 day
-  only:
-    refs:
-      - master
-
-download:src:
-  image: registry.gitlab.com/jitesoft/dockerfiles/alpine:latest
-  stage: download
-  variables:
-    GIT_STRATEGY: none
-  dependencies:
-    - download:versions
-  before_script:
-    - apk add --no-cache coreutils
-  script:
-    - cat sha256sum.txt
-    - |
-      while read -r line
-      do
-        set -- $line
-        wget "https://dl.google.com/go/${2}"
-      done <"sha256sum.txt"
-    - sha256sum -c sha256sum.txt
-  artifacts:
-    paths:
-      - ${CI_PROJECT_DIR}/*.src.tar.gz
-    expire_in: 1 day
-  only:
-    refs:
-      - master
-
-.build:alpine:
-  dependencies:
-    - download:src
-    - download:versions
-  stage: build
-  image: registry.gitlab.com/jitesoft/dockerfiles/docker:latest
-  script:
-    - docker build --build-arg VERSION=${VERSION} --label "com.jitesoft.app.go.version=${VERSION}" -t ${CI_REGISTRY_IMAGE}:${VERSION} .
-    - TAGS="${TAGS} ${VERSION} $(echo ${VERSION} | cut -d'.' -f1,2)"
-    - |
-      for tag in $TAGS; do
-        docker tag ${CI_REGISTRY_IMAGE}:${VERSION} ${CI_REGISTRY_IMAGE}:${tag}
-        docker tag ${CI_REGISTRY_IMAGE}:${VERSION} jitesoft/go:${tag}
-        docker push ${CI_REGISTRY_IMAGE}:${tag}
-        docker push jitesoft/go:${tag}
-      done
-  only:
-    refs:
-      - master
-
-.build:ubuntu:
-  dependencies:
-    - download:src
-    - download:versions
-  stage: build
-  image: registry.gitlab.com/jitesoft/dockerfiles/docker:latest
-  script:
-    - docker build --build-arg VERSION=${VERSION} --label "com.jitesoft.app.go.version=${VERSION}" -t ${CI_REGISTRY_IMAGE}/ubuntu:${VERSION} -f ubuntu.Dockerfile .
-    - TAGS="${TAGS} ${VERSION} $(echo ${VERSION} | cut -d'.' -f1,2)"
-    - |
-      for tag in $TAGS; do
-        docker tag ${CI_REGISTRY_IMAGE}/ubuntu:${VERSION} ${CI_REGISTRY_IMAGE}/ubuntu:${tag}
-        docker tag ${CI_REGISTRY_IMAGE}/ubuntu:${VERSION} jitesoft/go:${tag}-ubuntu
-        docker push ${CI_REGISTRY_IMAGE}/ubuntu:${tag}
-        docker push jitesoft/go:${tag}-ubuntu
-      done
-  only:
-    refs:
-      - master
-
-build:current:ubuntu:
-  variables:
-    TAGS: "latest"
-  extends: .build:ubuntu
-  before_script:
-    - apk add --no-cache grep
-    - FILE=$(cat sha256sum.txt | awk '{print $2}' | head -1)
-    - VERSION=$(echo ${FILE} | grep -oP '([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3})')
-
-build:prev:ubuntu:
-  variables:
-    TAGS: "prev"
-  extends: .build:ubuntu
-  before_script:
-    - apk add --no-cache grep
-    - FILE=$(cat sha256sum.txt | awk '{print $2}' | tail -1)
-    - VERSION=$(echo ${FILE} | grep -oP '([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3})')
-
-build:current:alpine:
-  variables:
-    TAGS: "latest"
-  extends: .build:alpine
-  before_script:
-    - apk add --no-cache grep
-    - FILE=$(cat sha256sum.txt | awk '{print $2}' | head -1)
-    - VERSION=$(echo ${FILE} | grep -oP '([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3})')
-
-build:prev:alpine:
-  variables:
-    TAGS: "prev"
-  extends: .build:alpine
-  before_script:
-    - apk add --no-cache grep
-    - FILE=$(cat sha256sum.txt | awk '{print $2}' | tail -1)
-    - VERSION=$(echo ${FILE} | grep -oP '([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3})')
-
 
 ########################################################################################################################
 #                                                                                                                      #
@@ -167,7 +37,7 @@ build:bootstrap:alpine:
     - download:bootstrap
   image: registry.gitlab.com/jitesoft/dockerfiles/docker/buildx:latest
   script:
-    - docker buildx build --platform ${ARCHITECTURES} --push -t ${CI_REGISTRY_IMAGE}:bootstrap -f bootstrap.dockerfile .
+    - docker buildx build --platform ${ARCHITECTURES} --push -t ${CI_REGISTRY_IMAGE}:bootstrap -f Alpine/Dockerfile .
   only:
     refs:
       - bootstrap
@@ -181,7 +51,7 @@ build:bootstrap:ubuntu:
     - download:bootstrap
   image: registry.gitlab.com/jitesoft/dockerfiles/docker/buildx:latest
   script:
-    - docker buildx build --platform ${ARCHITECTURES} --push -t ${CI_REGISTRY_IMAGE}/ubuntu:bootstrap -f bootstrap-ubuntu.dockerfile .
+    - docker buildx build --platform ${ARCHITECTURES} --push -t ${CI_REGISTRY_IMAGE}/ubuntu:bootstrap -f Ubuntu/Dockerfile .
   only:
     refs:
       - bootstrap
