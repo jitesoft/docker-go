@@ -3,7 +3,7 @@ FROM --platform=$BUILDPLATFORM registry.gitlab.com/jitesoft/dockerfiles/alpine:l
 ENV CGO_ENABLED=0 \
     GOOS="linux" \
     GOARCH="amd64" \
-    GOROOT_BOOTSTRAP="/usr/local/bootstrap" \
+    GOROOT_BOOTSTRAP="/usr/local/bootstrap"
 
 COPY ./go1.4-bootstrap-20171003.tar.gz /tmp/bootstrap.tar.gz
 COPY ./go1.7.4.src.tar.gz /tmp/go.tar.gz
@@ -19,7 +19,7 @@ RUN apk add --no-cache bash gcc musl-dev openssl tar ca-certificates \
  && chmod +x make.bash \
  && ./make.bash \
  && GOROOT_BOOTSTRAP="/usr/local/go" \
- && PATH="/usr/local/go/bin:$PATH"
+ && PATH="/usr/local/go/bin:$PATH" \
  && GOARCH="${TARGETPLATFORM##*/}" \
  && cd /usr/local/go/src \
  && chmod +x bootstrap.bash \
