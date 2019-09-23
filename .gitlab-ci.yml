@@ -27,7 +27,7 @@ download:bootstrap:
     - wget https://dl.google.com/go/go1.4-bootstrap-20171003.tar.gz
     - wget https://dl.google.com/go/go1.7.4.src.tar.gz
     - echo "${SHA}" > shasum.txt
-    - echo "${SHA2}" > shasum.txt
+    - echo "${SHA2}" >> shasum.txt
     - sha256sum -c shasum.txt
   artifacts:
     paths:
