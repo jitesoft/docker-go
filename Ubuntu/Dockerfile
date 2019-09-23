@@ -16,7 +16,7 @@ RUN apt-get update \
  && cd /usr/local/bootstrap/src \
  && chmod +x make.bash \
  && ./make.bash \
- &&  && tar -C /usr/local -xzf /tmp/go.tar.gz \
+ && tar -C /usr/local -xzf /tmp/go.tar.gz \
  && cd /usr/local/go/src \
  && chmod +x make.bash \
  && ./make.bash
@@ -31,9 +31,11 @@ ENV CGO_ENABLED=0 \
     PATH="/usr/local/bootstrap/bin:$PATH"
 
 COPY ./go1.7.4.src.tar.gz /tmp/go.tar.gz
-COPY --from=stage0-bootstrap  /usr/local/go /usr/local/bootstrap
+COPY --from=stage0-bootstrap /usr/local/go /usr/local/bootstrap
 
 RUN export GOARCH="${TARGETPLATFORM##*/}" \
+ && apt-get update \
+ && apt-get install -y gcc openssl tar ca-certificates \
  && tar -C /usr/local/ -xzf /tmp/go.tar.gz \
  && cd /usr/local/go \
  && GOARCH="${TARGETPLATFORM##*/}" \
@@ -58,4 +60,4 @@ ENV CGO_ENABLED=0 \
     GOROOT_BOOTSTRAP="/usr/local/bootstrap" \
     PATH="/usr/local/bootstrap/bin:$PATH"
 
-COPY --from=stage1-bootstrap  /usr/local/go /usr/local/bootstrap
+COPY --from=stage1-bootstrap /usr/local/go /usr/local/bootstrap
