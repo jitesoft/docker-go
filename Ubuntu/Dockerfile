@@ -20,29 +20,12 @@ RUN apt-get update \
  && cd /usr/local/go/src \
  && chmod +x make.bash \
  && ./make.bash
-
-####################
-
-FROM --platform=$BUILDPLATFORM registry.gitlab.com/jitesoft/dockerfiles/ubuntu:bionic AS stage1-bootstrap
-ARG TARGETPLATFORM
-ENV CGO_ENABLED=0 \
-    GOOS="linux" \
-    GOROOT_BOOTSTRAP="/usr/local/go" \
-    PATH="/usr/local/bootstrap/bin:$PATH"
-
-COPY ./go1.7.4.src.tar.gz /tmp/go.tar.gz
-COPY --from=stage0-bootstrap /usr/local/go /usr/local/bootstrap
-
-RUN export GOARCH="${TARGETPLATFORM##*/}" \
- && apt-get update \
- && apt-get install -y gcc openssl tar ca-certificates \
- && tar -C /usr/local/ -xzf /tmp/go.tar.gz \
- && cd /usr/local/go \
+ && GOROOT_BOOTSTRAP="/usr/local/go" \
+ && PATH="/usr/local/go/bin:$PATH"
  && GOARCH="${TARGETPLATFORM##*/}" \
+ && cd /usr/local/go/src \
  && chmod +x bootstrap.bash \
  && ./bootstrap.bash
-
-####################
 
 FROM registry.gitlab.com/jitesoft/dockerfiles/ubuntu:bionic
 LABEL maintainer="Johannes Tegnér <johannes@jitesoft.com>" \
@@ -60,4 +43,4 @@ ENV CGO_ENABLED=0 \
     GOROOT_BOOTSTRAP="/usr/local/bootstrap" \
     PATH="/usr/local/bootstrap/bin:$PATH"
 
-COPY --from=stage1-bootstrap /usr/local/go /usr/local/bootstrap
+COPY --from=stage0-bootstrap /usr/local/go /usr/local/bootstrap

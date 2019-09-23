@@ -17,28 +17,13 @@ RUN apk add --no-cache bash gcc musl-dev openssl tar ca-certificates \
  && tar -C /usr/local/ -xzf /tmp/go.tar.gz \
  && cd /usr/local/go/src \
  && chmod +x make.bash \
- && ./make.bash
-
-####################
-
-FROM --platform=$BUILDPLATFORM registry.gitlab.com/jitesoft/dockerfiles/alpine:latest AS stage1-bootstrap
-ENV CGO_ENABLED=0 \
-    GOOS="linux" \
-    GOROOT_BOOTSTRAP="/usr/local/go" \
-    PATH="/usr/local/bootstrap/bin:$PATH"
-
-COPY ./go1.7.4.src.tar.gz /tmp/go.tar.gz
-COPY --from=stage0-bootstrap /usr/local/go /usr/local/bootstrap
-
-RUN export GOARCH="${TARGETPLATFORM##*/}" \
- && apk add --no-cache bash gcc musl-dev openssl tar ca-certificates \
- && tar -C /usr/local/ -xzf /tmp/go.tar.gz \
+ && ./make.bash \
+ && GOROOT_BOOTSTRAP="/usr/local/go" \
+ && PATH="/usr/local/go/bin:$PATH"
+ && GOARCH="${TARGETPLATFORM##*/}" \
  && cd /usr/local/go/src \
  && chmod +x bootstrap.bash \
  && ./bootstrap.bash
-
-
-####################
 
 FROM registry.gitlab.com/jitesoft/dockerfiles/alpine:latest
 LABEL maintainer="Johannes Tegnér <johannes@jitesoft.com>" \
@@ -58,7 +43,7 @@ ENV CGO_ENABLED=0 \
     PATH="/usr/local/bootstrap/bin:$PATH"
 
 RUN apk add --no-cache ca-certificates
-COPY --from=stage1-bootstrap /usr/local/go /usr/local/bootstrap
+COPY --from=stage0-bootstrap /usr/local/go /usr/local/bootstrap
 
 
 
