@@ -17,11 +17,11 @@ RUN apk add --no-cache bash gcc musl-dev openssl tar ca-certificates \
  && mkdir /usr/local/bootstrap2 \
  && tar -C /usr/local/bootstrap2 -xzf /tmp/go.tar.gz \
  && cd /usr/local/bootstrap2/go/src \
- && ./bootstrap.bash \
+ && ./make.bash \
  && export GOROOT_BOOTSTRAP="/usr/local/bootstrap2" \
  && tar -C /usr/local -xzf /tmp/go.tar.gz \
  && cd /usr/local/go/src \
- && GOARCH=${TARGETPLATFORM} ./bootstrap.bash
+ && GOOS=linux GOARCH=${TARGETPLATFORM} ./bootstrap.bash
 
 ####################
 

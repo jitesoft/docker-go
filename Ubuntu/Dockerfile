@@ -14,16 +14,16 @@ RUN apt-get update \
  && mv /tmp/go /usr/local/bootstrap \
  && cd /usr/local/bootstrap/src \
  && chmod +x make.bash \
- && taskset 1 ./make.bash \
+ && ./make.bash \
  && GOROOT_BOOTSTRAP="/usr/local/bootstrap" \
  && mdkir /usr/local/bootstrap2 \
  && tar -C /usr/local/bootstrap2 -xzf /tmp/go.tar.gz \
  && cd /usr/local/bootstrap2/go/src \
- && ./bootstrap.bash \
+ && ./make.bash \
  && export GOROOT_BOOTSTRAP="/usr/local/bootstrap2" \
  && tar -C /usr/local -xzf /tmp/go.tar.gz \
  && cd /usr/local/go/src \
- && GOARCH=${TARGETPLATFORM} ./bootstrap.bash
+ && GOOS=linux GOARCH=${TARGETPLATFORM} ./bootstrap.bash
 
 ####################
 
