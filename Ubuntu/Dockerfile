@@ -19,11 +19,11 @@ RUN apt-get update \
  && tar -C /usr/local -xzf /tmp/go.tar.gz \
  && cd /usr/local/go/src \
  && ./make.bash \
- && export GOROOT_BOOTSTRAP="/usr/local/go" \
+ && GOROOT_BOOTSTRAP="/usr/local/go" \
  && tar -C /tmp -xzf /tmp/go.tar.gz \
  && cd /tmp/go/src \
- && export GOOS="linux" \
- && export GOARCH="${TARGETPLATFORM##*/}" \
+ && GOOS="linux" \
+ && GOARCH="${TARGETPLATFORM##*/}" \
  && ./bootstrap.bash
 
 ####################
