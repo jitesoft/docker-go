@@ -1,5 +1,5 @@
-# syntax=docker/dockerfile:1.1-experimental
-FROM --platform $BUILDPLATFORM registry.gitlab.com/jitesoft/dockerfiles/go:bootstrap as bootstrap-chain
+# syntax = docker/dockerfile:experimental
+FROM --platform=$BUILDPLATFORM registry.gitlab.com/jitesoft/dockerfiles/go:bootstrap AS bootstrap-chain
 ARG VERSION
 ARG TARGETPLATFORM
 ENV GOARCH="${TARGETPLATFORM}"
@@ -13,7 +13,7 @@ RUN apk add --no-cache --virtual .build bash gcc musl-dev openssl ca-certificate
  && ./bootstrap.bash
 
 
-FROM registry.gitlab.com/jitesoft/dockerfiles/alpine as build
+FROM registry.gitlab.com/jitesoft/dockerfiles/alpine AS build
 ARG VERSION
 ARG TARGETPLATFORM
 ARG BUILDPLATFORM

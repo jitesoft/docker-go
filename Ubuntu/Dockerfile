@@ -1,5 +1,5 @@
 # syntax = docker/dockerfile:experimental
-FROM --platform $BUILDPLATFORM registry.gitlab.com/jitesoft/dockerfiles/go/ubuntu:bootstrap as bootstrap-chain
+FROM --platform=$BUILDPLATFORM registry.gitlab.com/jitesoft/dockerfiles/go/ubuntu:bootstrap AS bootstrap-chain
 ARG VERSION
 ARG TARGETPLATFORM
 ENV GOARCH="${TARGETPLATFORM}"
@@ -14,7 +14,7 @@ RUN export GOARCH="${TARGETPLATFORM##*/}" \
  && cd /usr/local/go/src \
  && ./bootstrap.bash
 
-FROM registry.gitlab.com/jitesoft/dockerfiles/go/ubuntu as build
+FROM registry.gitlab.com/jitesoft/dockerfiles/go/ubuntu AS build
 ARG VERSION
 ARG TARGETPLATFORM
 
