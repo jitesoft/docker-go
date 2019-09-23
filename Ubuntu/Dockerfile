@@ -44,4 +44,4 @@ ENV CGO_ENABLED=0 \
     GOROOT_BOOTSTRAP="/usr/local/bootstrap" \
     PATH="/usr/local/bootstrap/bin:$PATH"
 
-COPY --from=stage0-bootstrap  /usr/local/go /usr/local/bootstrap
+COPY --from=stage0-bootstrap  /tmp/go /usr/local/bootstrap

@@ -44,7 +44,7 @@ ENV CGO_ENABLED=0 \
     PATH="/usr/local/bootstrap/bin:$PATH"
 
 RUN apk add --no-cache ca-certificates
-COPY --from=stage0-bootstrap  /usr/local/go /usr/local/bootstrap
+COPY --from=stage0-bootstrap  /tmp/go /usr/local/bootstrap
 
 
 
