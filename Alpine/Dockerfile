@@ -1,4 +1,4 @@
-# syntax=docker/dockerfile:experimental
+# syntax=docker/dockerfile:1.1-experimental
 FROM --platform $BUILDPLATFORM registry.gitlab.com/jitesoft/dockerfiles/go:bootstrap as bootstrap-chain
 ARG VERSION
 ARG TARGETPLATFORM
