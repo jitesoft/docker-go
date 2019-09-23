@@ -15,14 +15,18 @@ RUN apk add --no-cache bash gcc musl-dev openssl tar ca-certificates \
 
 COPY ./go1.7.4.src.tar.gz /tmp/go.tar.gz
 
+ENV GOROOT_BOOTSTRAP="/usr/local/bootstrap"
+
 RUN mkdir /usr/local/bootstrap2 \
  && tar -C /usr/local/bootstrap2 -xzf /tmp/go.tar.gz \
  && cd /usr/local/bootstrap2/go/src \
- && GOOS=linux GOARCH=amd64 ./bootstrap.bash
+ && ./bootstrap.bash
+
+ENV GOROOT_BOOTSTRAP="/usr/local/bootstrap2/go"
 
 RUN tar -C /usr/local -xzf /tmp/go.tar.gz \
  && cd /usr/local/go/src \
- && GOOS=linux GOARCH=${TARGETPLATFORM} ./bootstrap.bash
+ && GOARCH=${TARGETPLATFORM} ./bootstrap.bash
 
 ####################
 
