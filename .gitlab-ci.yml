@@ -2,6 +2,11 @@ stages:
   - download
   - build
 
+variables:
+  DOCKER_BUILDKIT: 1
+  ARCHITECTURES: "linux/amd64,linux/arm64,linux/ppc64le,linux/s390x,linux/386"
+
+
 ########################################################################################################################
 #                                                                                                                      #
 #                                                  Bootstrap build.                                                    #
@@ -39,12 +44,11 @@ build:bootstrap:alpine:
     - download:bootstrap
   image: registry.gitlab.com/jitesoft/dockerfiles/docker:latest
   script:
-    - docker build -t ${CI_REGISTRY_IMAGE}:bootstrap -f Alpine/Dockerfile .
-    - docker push ${CI_REGISTRY_IMAGE}:bootstrap
+    - docker buildx build --platform ${ARCHITECTURES} --progress plain --push -t ${CI_REGISTRY_IMAGE}:bootstrap -f Alpine/Dockerfile .
   only:
     refs:
       - bootstrap
-  tags: [ jitesoft, amd64 ]
+  tags: [ jitesoft, buildx, amd64, arm64, s390x, ppc64le, i386 ]
 
 build:bootstrap:ubuntu:
   stage: build
@@ -52,9 +56,8 @@ build:bootstrap:ubuntu:
     - download:bootstrap
   image: registry.gitlab.com/jitesoft/dockerfiles/docker:latest
   script:
-    - docker build -t ${CI_REGISTRY_IMAGE}/ubuntu:bootstrap -f Ubuntu/Dockerfile .
-    - docker push ${CI_REGISTRY_IMAGE}/ubuntu:bootstrap
+    - docker buildx build --platform ${ARCHITECTURES} --progress plain --push -t ${CI_REGISTRY_IMAGE}/ubuntu:bootstrap -f Alpine/Dockerfile .
   only:
     refs:
       - bootstrap
-  tags: [ jitesoft, amd64 ]
+  tags: [ jitesoft, buildx, amd64, arm64, s390x, ppc64le, i386 ]
