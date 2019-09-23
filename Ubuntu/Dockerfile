@@ -18,9 +18,12 @@ RUN apt-get update \
  && GOROOT_BOOTSTRAP="/usr/local/bootstrap" \
  && tar -C /usr/local -xzf /tmp/go.tar.gz \
  && cd /usr/local/go/src \
- && ./make.bash \
- && GOROOT_BOOTSTRAP="/usr/local/go" \
- && tar -C /tmp -xzf /tmp/go.tar.gz \
+ && ./make.bash
+
+ENV GOROOT_BOOTSTRAP="/usr/local/go" \
+    PATH="/usr/local/bootstrap/bin:$PATH"
+
+RUN tar -C /tmp -xzf /tmp/go.tar.gz \
  && cd /tmp/go/src \
  && GOOS="linux" \
  && GOARCH="${TARGETPLATFORM##*/}" \
