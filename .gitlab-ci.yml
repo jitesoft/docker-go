@@ -42,7 +42,7 @@ build:bootstrap:alpine:
   stage: build
   dependencies:
     - download:bootstrap
-  image: registry.gitlab.com/jitesoft/dockerfiles/docker:latest
+  image: registry.gitlab.com/jitesoft/dockerfiles/docker/buildx:latest
   script:
     - docker buildx build --platform ${ARCHITECTURES} --progress plain --push -t ${CI_REGISTRY_IMAGE}:bootstrap -f Alpine/Dockerfile .
   only:
@@ -54,7 +54,7 @@ build:bootstrap:ubuntu:
   stage: build
   dependencies:
     - download:bootstrap
-  image: registry.gitlab.com/jitesoft/dockerfiles/docker:latest
+  image: registry.gitlab.com/jitesoft/dockerfiles/docker/buildx:latest
   script:
     - docker buildx build --platform ${ARCHITECTURES} --progress plain --push -t ${CI_REGISTRY_IMAGE}/ubuntu:bootstrap -f Alpine/Dockerfile .
   only:
