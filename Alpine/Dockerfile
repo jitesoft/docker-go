@@ -17,7 +17,7 @@ RUN apk add --no-cache bash gcc musl-dev openssl tar ca-certificates \
  && tar -C /usr/local/ -xzf /tmp/go.tar.gz \
  && cd /usr/local/go/src \
  && chmod +x make.bash \
- && ./make.bash \
+ && ./make.bash --no-clean \
  && GOROOT_BOOTSTRAP="/usr/local/go" \
  && PATH="/usr/local/go/bin:$PATH" \
  && GOARCH="${TARGETPLATFORM##*/}" \
