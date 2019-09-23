@@ -1,5 +1,6 @@
 # syntax = docker/dockerfile:experimental
 FROM --platform=$BUILDPLATFORM registry.gitlab.com/jitesoft/dockerfiles/alpine:latest AS stage0-bootstrap
+ARG TARGETPLATFORM
 ENV CGO_ENABLED=0 \
     GOOS="linux" \
     GOARCH="amd64" \
@@ -14,11 +15,12 @@ RUN apk add --no-cache bash gcc musl-dev openssl tar ca-certificates \
  && cd /usr/local/bootstrap/src \
  && chmod +x make.bash \
  && ./make.bash \
- && tar -C /usr/local/ -xzf /tmp/go.tar.gz \
+ && tar -C /usr/local -xzf /tmp/go.tar.gz \
  && cd /usr/local/go/src \
  && chmod +x make.bash \
- && ./make.bash --no-clean \
- && GOROOT_BOOTSTRAP="/usr/local/go" \
+ && ./make.bash --no-clean
+
+RUN GOROOT_BOOTSTRAP="/usr/local/go" \
  && PATH="/usr/local/go/bin:$PATH" \
  && GOARCH="${TARGETPLATFORM##*/}" \
  && cd /usr/local/go/src \
