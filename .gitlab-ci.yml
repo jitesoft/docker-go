@@ -17,13 +17,17 @@ download:bootstrap:
   variables:
     GIT_STRATEGY: none
     SHA: "f4ff5b5eb3a3cae1c993723f3eab519c5bae18866b5e5f96fe1102f0cb5c3e52  go1.4-bootstrap-20171003.tar.gz"
+    SHA2: "4c189111e9ba651a2bb3ee868aa881fab36b2f2da3409e80885ca758a6b614cc go1.7.4.src.tar.gz"
   script:
     - wget https://dl.google.com/go/go1.4-bootstrap-20171003.tar.gz
+    - wget https://dl.google.com/go/go1.7.4.src.tar.gz
     - echo "${SHA}" > shasum.txt
+    - echo "${SHA2}" > shasum.txt
     - sha256sum -c shasum.txt
   artifacts:
     paths:
       - go1.4-bootstrap-20171003.tar.gz
+      - go1.7.4.src.tar.gz
     expire_in: 5 hours
   only:
     refs:

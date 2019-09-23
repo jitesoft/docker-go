@@ -1,4 +1,6 @@
-FROM registry.gitlab.com/jitesoft/dockerfiles/ubuntu:bionic as pre-build
+# syntax = docker/dockerfile:experimental
+FROM --platform=$BUILDPLATFORM registry.gitlab.com/jitesoft/dockerfiles/ubuntu:bionic AS stage0-bootstrap
+ARG TARGETPLATFORM
 ENV CGO_ENABLED=0 \
     GOOS="linux" \
     GOARCH="amd64"
@@ -13,7 +15,16 @@ RUN apt-get update \
  && chmod +x make.bash \
  && taskset 1 ./make.bash
 
-# Stage 2. Copy bootstrap exec to the actual bootstrap image.
+COPY ./go1.7.4.src.tar.gz /tmp/go.tar.gz
+
+RUN export GOARCH="${TARGETPLATFORM##*/}" \
+ && tar -C /usr/local -xzf /tmp/go.tar.gz \
+ && rm -f /tmp/go.tar.gz \
+ && cd /usr/local/go/src \
+ && ./bootstrap.bash
+
+####################
+
 FROM registry.gitlab.com/jitesoft/dockerfiles/ubuntu:bionic
 LABEL maintainer="Johannes Tegnér <johannes@jitesoft.com>" \
       maintainer.org="Jitesoft" \
@@ -22,12 +33,12 @@ LABEL maintainer="Johannes Tegnér <johannes@jitesoft.com>" \
       com.jitesoft.project.repo.uri="https://gitlab.com/jitesoft/dockerfiles/go" \
       com.jitesoft.project.repo.issues="https://gitlab.com/jitesoft/dockerfiles/go/issues" \
       com.jitesoft.project.registry.uri="registry.gitlab.com/jitesoft/dockerfiles/go" \
-      com.jitesoft.app.go.version="1.4-bootstrap"
+      com.jitesoft.app.go.version="bootstrap"
 
 ENV CGO_ENABLED=0 \
     GOOS="linux" \
+    GOARCH="${TARGETPLATFORM}" \
     GOROOT_BOOTSTRAP="/usr/local/bootstrap" \
-    PATH="/usr/local/bootstrap/bin:$PATH" \
-    GOARCH="amd64"
+    PATH="/usr/local/bootstrap/bin:$PATH"
 
-COPY --from=pre-build  /usr/local/bootstrap /usr/local/bootstrap
+COPY --from=stage0-bootstrap  /usr/local/bootstrap /usr/local/bootstrap
