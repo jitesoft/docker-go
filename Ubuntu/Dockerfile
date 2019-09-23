@@ -16,10 +16,15 @@ RUN apt-get update \
  && taskset 1 ./make.bash
 
 COPY ./go1.7.4.src.tar.gz /tmp/go.tar.gz
-
+# Bootstrap for amd.
+RUN mdkir /usr/local/bootstrap2 \
+ && tar -C /usr/local/bootstrap2 -xzf /tmp/go.tar.gz \
+ && cd /usr/local/bootstrap2/go/src \
+ && GOOS=linux GOARCH=amd64 ./bootstrap.bash
+# Bootstrap for next!
 RUN tar -C /usr/local -xzf /tmp/go.tar.gz \
  && cd /usr/local/go/src \
- && GOOS=linux GOARCH=${TARGETPLATFORM##*/} ./bootstrap.bash
+ && GOOS=linux GOARCH=${TARGETPLATFORM} ./bootstrap.bash
 
 ####################
 
@@ -39,4 +44,4 @@ ENV CGO_ENABLED=0 \
     GOROOT_BOOTSTRAP="/usr/local/bootstrap" \
     PATH="/usr/local/bootstrap/bin:$PATH"
 
-COPY --from=stage0-bootstrap  /usr/local/bootstrap /usr/local/bootstrap
+COPY --from=stage0-bootstrap  /usr/local/go /usr/local/bootstrap
