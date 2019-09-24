@@ -52,7 +52,8 @@ COPY --from=stage0-bootstrap /usr/local/go /usr/local/bootstrap
 
 COPY --from=stage0-bootstrap /tmp/${TARGETPLATFORM} /tmp
 RUN apk add --no-cache ca-certificates \
- && tar -xjf /tmp/go.tbz /usr/local/bootstrap
+ && mkdir /usr/local/bootstrap \
+ && tar -xjf /tmp/go.tbz -C /usr/local/bootstrap
 
 
 

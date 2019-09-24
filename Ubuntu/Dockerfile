@@ -48,4 +48,5 @@ ENV CGO_ENABLED=0 \
     PATH="/usr/local/bootstrap/bin:$PATH"
 
 COPY --from=stage0-bootstrap /tmp/${TARGETPLATFORM} /tmp
-RUN tar -xjf /tmp/go.tbz /usr/local/bootstrap
+RUN mkdir /usr/local/bootstrap \
+ && tar -xjf /tmp/go.tbz -C /usr/local/bootstrap
