@@ -1,30 +1,8 @@
-# syntax = docker/dockerfile:experimental
-FROM --platform=$BUILDPLATFORM registry.gitlab.com/jitesoft/dockerfiles/go:bootstrap AS bootstrap-chain
+FROM registry.gitlab.com/jitesoft/dockerfiles/go:bootstrap AS stage0-build
 ARG VERSION
 ARG TARGETPLATFORM
-ENV GOARCH="${TARGETPLATFORM}"
 
 COPY ./go${VERSION}.src.tar.gz /tmp/go.tar.gz
-
-RUN export GOARCH="${TARGETPLATFORM##*/}" \
- && apk add --no-cache --virtual .build bash gcc musl-dev openssl ca-certificates \
- && tar -C /usr/local -xzf /tmp/go.tar.gz \
- && rm -f /tmp/go.tar.gz \
- && cd /usr/local/go/src \
- && ./bootstrap.bash
-
-FROM registry.gitlab.com/jitesoft/dockerfiles/alpine AS build
-ARG VERSION
-ARG TARGETPLATFORM
-ARG BUILDPLATFORM
-ENV GOARCH="${TARGETPLATFORM}" \
-    CGO_ENABLED=0 \
-    GOOS="linux" \
-    GOROOT_BOOTSTRAP="/usr/local/bootstrap" \
-    PATH="/usr/local/bootstrap/bin:$PATH"
-
-COPY ./go${VERSION}.src.tar.gz /tmp/go.tar.gz
-COPY --from=bootstrap-chain /usr/local/bootstrap /usr/local/bootstrap
 
 RUN apk add --no-cache --virtual .build bash gcc musl-dev openssl ca-certificates \
  && tar -C /usr/local -xzf /tmp/go.tar.gz \
@@ -32,7 +10,6 @@ RUN apk add --no-cache --virtual .build bash gcc musl-dev openssl ca-certificate
  && cd /usr/local/go/src \
  && ./make.bash \
  && rm -rf /usr/local/go/pkg/bootstrap /usr/local/go/pkg/obj
-
 
 FROM registry.gitlab.com/jitesoft/dockerfiles/alpine:latest
 ARG VERSION
@@ -51,7 +28,7 @@ ENV PATH="/usr/local/go/bin:$PATH" \
     GOOS="linux" \
     GOARCH="${TARGETPLATFORM}"
 
-COPY --from=build /usr/local/go /usr/local/go
+COPY --from=stage0-build /usr/local/go /usr/local/go
 
 RUN mkdir -p "${GOPATH}/src" "${GOPATH}/bin" \
  && chmod -R 777 ${GOPATH} \
