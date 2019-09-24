@@ -23,11 +23,11 @@ LABEL maintainer="Johannes Tegnér <johannes@jitesoft.com>" \
       com.jitesoft.project.registry.uri="registry.gitlab.com/jitesoft/dockerfiles/go/ubuntu" \
       com.jitesoft.app.go.version="${VERSION}"
 
-ARG TARGETPLATFORM
+ARG TARGETVARIANT
 ENV PATH="/usr/local/go/bin:$PATH" \
     GOPATH="/go" \
     GOOS="linux" \
-    GOARCH="${TARGETPLATFORM}"
+    GOARCH="${TARGETVARIANT}"
 
 COPY --from=stage0-build /usr/local/go /usr/local/go
 
