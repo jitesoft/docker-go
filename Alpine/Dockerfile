@@ -47,13 +47,11 @@ ENV CGO_ENABLED=0 \
     GOROOT_BOOTSTRAP="/usr/local/bootstrap" \
     PATH="/usr/local/bootstrap/bin:$PATH"
 
-RUN apk add --no-cache ca-certificates
-COPY --from=stage0-bootstrap /usr/local/go /usr/local/bootstrap
-
 COPY --from=stage0-bootstrap /tmp/${TARGETPLATFORM} /tmp
 RUN apk add --no-cache ca-certificates \
  && mkdir /usr/local/bootstrap \
- && tar -xjf /tmp/go.tbz -C /usr/local/bootstrap
+ && tar -xjf /tmp/go.tbz -C /usr/local/bootstrap --strip-components=1 \
+ && rm -rf /tmp/*
 
 
 

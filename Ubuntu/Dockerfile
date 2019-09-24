@@ -49,4 +49,5 @@ ENV CGO_ENABLED=0 \
 
 COPY --from=stage0-bootstrap /tmp/${TARGETPLATFORM} /tmp
 RUN mkdir /usr/local/bootstrap \
- && tar -xjf /tmp/go.tbz -C /usr/local/bootstrap
+ && tar -xjf /tmp/go.tbz -C /usr/local/bootstrap --strip-components=1 \
+ && rm -rf /tmp/*
