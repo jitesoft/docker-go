@@ -41,9 +41,10 @@ LABEL maintainer="Johannes Tegnér <johannes@jitesoft.com>" \
       com.jitesoft.app.go.version="bootstrap"
 
 ARG TARGETPLATFORM
+ARG TARGETVARIANT
 ENV CGO_ENABLED=0 \
     GOOS="linux" \
-    GOARCH="${TARGETPLATFORM}" \
+    GOARCH="${TARGETVARIANT}" \
     GOROOT_BOOTSTRAP="/usr/local/bootstrap" \
     PATH="/usr/local/bootstrap/bin:$PATH"
 
