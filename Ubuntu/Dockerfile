@@ -41,10 +41,10 @@ LABEL maintainer="Johannes Tegnér <johannes@jitesoft.com>" \
       com.jitesoft.project.registry.uri="registry.gitlab.com/jitesoft/dockerfiles/go/bootstrap" \
       com.jitesoft.app.go.version="bootstrap"
 ARG TARGETPLATFORM
-ARG TARGETVARIANT
+ARG TARGETARCH
 ENV CGO_ENABLED=0 \
     GOOS="linux" \
-    GOARCH="${TARGETVARIANT}" \
+    GOARCH="${TARGETARCH}" \
     GOROOT_BOOTSTRAP="/usr/local/bootstrap" \
     PATH="/usr/local/bootstrap/bin:$PATH"
 
