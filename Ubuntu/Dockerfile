@@ -28,6 +28,9 @@ RUN GOROOT_BOOTSTRAP="/usr/local/go" \
  && chmod +x bootstrap.bash \
  && ./bootstrap.bash
 
+RUN mkdir -p "/tmp/${TARGETPLATFORM}" \
+ && mv "/usr/local/go-linux-${TARGETPLATFORM##*/}-bootstrap.tbz" "/tmp/${TARGETPLATFORM}/go.tbz"
+
 FROM registry.gitlab.com/jitesoft/dockerfiles/ubuntu:bionic
 LABEL maintainer="Johannes Tegnér <johannes@jitesoft.com>" \
       maintainer.org="Jitesoft" \
@@ -37,11 +40,12 @@ LABEL maintainer="Johannes Tegnér <johannes@jitesoft.com>" \
       com.jitesoft.project.repo.issues="https://gitlab.com/jitesoft/dockerfiles/go/issues" \
       com.jitesoft.project.registry.uri="registry.gitlab.com/jitesoft/dockerfiles/go/bootstrap" \
       com.jitesoft.app.go.version="bootstrap"
-
+ARG TARGETPLATFORM
 ENV CGO_ENABLED=0 \
     GOOS="linux" \
     GOARCH="${TARGETPLATFORM}" \
     GOROOT_BOOTSTRAP="/usr/local/bootstrap" \
     PATH="/usr/local/bootstrap/bin:$PATH"
 
-COPY --from=stage0-bootstrap /usr/local/go /usr/local/bootstrap
+COPY --from=stage0-bootstrap /tmp/${TARGETPLATFORM} /tmp
+RUN tar -xjf /tmp/go.tbz /usr/local/bootstrap

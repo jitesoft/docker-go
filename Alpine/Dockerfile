@@ -27,6 +27,9 @@ RUN GOROOT_BOOTSTRAP="/usr/local/go" \
  && chmod +x bootstrap.bash \
  && ./bootstrap.bash
 
+RUN mkdir -p "/tmp/${TARGETPLATFORM}" \
+ && mv "/usr/local/go-linux-${TARGETPLATFORM##*/}-bootstrap.tbz" "/tmp/${TARGETPLATFORM}/go.tbz"
+
 FROM registry.gitlab.com/jitesoft/dockerfiles/alpine:latest
 LABEL maintainer="Johannes Tegnér <johannes@jitesoft.com>" \
       maintainer.org="Jitesoft" \
@@ -47,6 +50,9 @@ ENV CGO_ENABLED=0 \
 RUN apk add --no-cache ca-certificates
 COPY --from=stage0-bootstrap /usr/local/go /usr/local/bootstrap
 
+COPY --from=stage0-bootstrap /tmp/${TARGETPLATFORM} /tmp
+RUN apk add --no-cache ca-certificates \
+ && tar -xjf /tmp/go.tbz /usr/local/bootstrap
 
 
 
