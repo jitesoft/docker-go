@@ -3,9 +3,7 @@ include:
 
 
 variables:
-  ARCHITECTURES: "linux/amd64"
-
-# linux/arm64,linux/ppc64le,linux/s390x
+  ARCHITECTURES: "linux/amd64,linux/arm64,linux/ppc64le,linux/s390x"
 
 stages:
   - pre
@@ -66,16 +64,13 @@ download:src:
     - download:src
     - download:versions
   stage: build
-  image: registry.gitlab.com/jitesoft/dockerfiles/docker/buildx:latest
+  image: registry.gitlab.com/jitesoft/dockerfiles/misc:latest
   script:
     - DOCKER_BUILDKIT=1
-    - wget https://gist.githubusercontent.com/Johannestegner/093e8053eabd795ed84b83e9610aed6b/raw/helper.sh -O helper
-    - chmod +x helper
     - VERSION_SHORT=""
     - OC=$(echo ${VERSION} | awk -F"." '{print NF-1}')
     - if [ "$OC" = "2" ]; then VERSION_SHORT=$(echo ${VERSION} | cut -d'.' -f1,2); fi
-    - TAGS="${TAGS},${VERSION},${VERSION_SHORT}"
-    - TAG_LIST=$(./helper "${CI_REGISTRY_IMAGE}", "${TAGS}")
+    - TAG_LIST=$(helper "${CI_REGISTRY_IMAGE}", "${TAGS},${VERSION},${VERSION_SHORT}")
     - docker buildx build --platform ${ARCHITECTURES} --progress plain --push ${TAG_LIST} --build-arg VERSION=${VERSION} -f Alpine/Dockerfile .
   only:
     refs:
@@ -87,16 +82,13 @@ download:src:
     - download:src
     - download:versions
   stage: build
-  image: registry.gitlab.com/jitesoft/dockerfiles/docker/buildx:latest
+  image: registry.gitlab.com/jitesoft/dockerfiles/misc:latest
   script:
     - DOCKER_BUILDKIT=1
-    - wget https://gist.githubusercontent.com/Johannestegner/093e8053eabd795ed84b83e9610aed6b/raw/helper.sh -O helper
-    - chmod +x helper
     - VERSION_SHORT=""
     - OC=$(echo ${VERSION} | awk -F"." '{print NF-1}')
     - if [ "$OC" = "2" ]; then VERSION_SHORT=$(echo ${VERSION} | cut -d'.' -f1,2); fi
-    - TAGS="${TAGS},${VERSION},${VERSION_SHORT}"
-    - TAG_LIST=$(./helper "${CI_REGISTRY_IMAGE}/ubuntu", "${TAGS}")
+    - TAG_LIST=$(helper "${CI_REGISTRY_IMAGE}/ubuntu", "${TAGS},${VERSION},${VERSION_SHORT}")
     - docker buildx build --platform ${ARCHITECTURES} --progress plain --push ${TAG_LIST} --build-arg VERSION=${VERSION} -f Ubuntu/Dockerfile .
   only:
     refs:
