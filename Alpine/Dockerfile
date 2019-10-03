@@ -1,10 +1,14 @@
 FROM registry.gitlab.com/jitesoft/dockerfiles/go:bootstrap AS stage0-build
 ARG VERSION
 ARG TARGETPLATFORM
+ARG TARGETARCH
+
+ENV GOOS="linux" \
+    GOARCH="${TARGETARCH}"
 
 COPY ./go${VERSION}.src.tar.gz /tmp/go.tar.gz
 
-RUN apk add --no-cache --virtual .build bash gcc musl-dev openssl ca-certificates \
+RUN apk add --no-cache --virtual .build git bash gcc musl-dev openssl ca-certificates \
  && tar -C /usr/local -xzf /tmp/go.tar.gz \
  && rm -f /tmp/go.tar.gz \
  && cd /usr/local/go/src \
@@ -30,7 +34,8 @@ ENV PATH="/usr/local/go/bin:$PATH" \
 
 COPY --from=stage0-build /usr/local/go /usr/local/go
 
-RUN mkdir -p "${GOPATH}/src" "${GOPATH}/bin" \
+RUN apk add --no-cache git \
+ && mkdir -p "${GOPATH}/src" "${GOPATH}/bin" \
  && chmod -R 777 ${GOPATH} \
  && [ ! -e /etc/nsswitch.conf ] && echo 'hosts: files dns' > /etc/nsswitch.conf \
  && go version

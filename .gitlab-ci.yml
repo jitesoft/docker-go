@@ -3,7 +3,7 @@ include:
 
 
 variables:
-  ARCHITECTURES: "linux/amd64,linux/arm64,linux/ppc64le,linux/s390x"
+  ARCHITECTURES: "linux/amd64,linux/arm64"
 
 stages:
   - pre
@@ -29,9 +29,9 @@ download:versions:
     paths:
       - sha256sum.txt
     expire_in: 1 day
-  only:
-    refs:
-      - master
+#  only:
+#    refs:
+#      - master
 
 download:src:
   image: registry.gitlab.com/jitesoft/dockerfiles/alpine:latest
@@ -55,9 +55,9 @@ download:src:
     paths:
       - ${CI_PROJECT_DIR}/*.src.tar.gz
     expire_in: 1 day
-  only:
-    refs:
-      - master
+#  only:
+#    refs:
+#      - master
 
 .build:alpine:
   dependencies:
@@ -72,9 +72,9 @@ download:src:
     - if [ "$OC" = "2" ]; then VERSION_SHORT=$(echo ${VERSION} | cut -d'.' -f1,2); fi
     - TAG_LIST=$(helper "${CI_REGISTRY_IMAGE}", "${TAGS},${VERSION},${VERSION_SHORT}")
     - docker buildx build --platform ${ARCHITECTURES} --progress plain --push ${TAG_LIST} --build-arg VERSION=${VERSION} -f Alpine/Dockerfile .
-  only:
-    refs:
-      - master
+#  only:
+#    refs:
+#      - master
   tags: [ jitesoft, buildx, amd64, arm64, s390x, ppc64le, i386 ]
 
 .build:ubuntu:
@@ -90,9 +90,9 @@ download:src:
     - if [ "$OC" = "2" ]; then VERSION_SHORT=$(echo ${VERSION} | cut -d'.' -f1,2); fi
     - TAG_LIST=$(helper "${CI_REGISTRY_IMAGE}/ubuntu", "${TAGS},${VERSION},${VERSION_SHORT}")
     - docker buildx build --platform ${ARCHITECTURES} --progress plain --push ${TAG_LIST} --build-arg VERSION=${VERSION} -f Ubuntu/Dockerfile .
-  only:
-    refs:
-      - master
+#  only:
+#    refs:
+#      - master
   tags: [ jitesoft, buildx, amd64, arm64, s390x, ppc64le, i386 ]
 
 build:current:ubuntu:
