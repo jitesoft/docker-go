@@ -28,9 +28,11 @@ download:versions:
     paths:
       - sha256sum.txt
     expire_in: 1 day
+  tags: [ jitesoft ]
   only:
     refs:
       - master
+
 
 download:src:
   image: registry.gitlab.com/jitesoft/dockerfiles/alpine:latest
@@ -54,6 +56,7 @@ download:src:
     paths:
       - ${CI_PROJECT_DIR}/*.src.tar.gz
     expire_in: 1 day
+  tags: [ jitesoft ]
   only:
     refs:
       - master
