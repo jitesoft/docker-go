@@ -89,7 +89,7 @@ download:src:
     - DOCKER_BUILDKIT=1
     - VERSION_SHORT="${VERSION}"
     - OC=$(echo ${VERSION} | awk -F"." '{print NF-1}')
-    - if [ "$OC" = "2" ]; then VERSION_SHORT=",$(echo ${VERSION} | cut -d'.' -f1,2); fi
+    - if [ "$OC" = "2" ]; then VERSION_SHORT=$(echo ${VERSION} | cut -d'.' -f1,2); fi
     - TAG_LIST=$(helper "${CI_REGISTRY_IMAGE}/ubuntu", "${TAGS},${VERSION}${VERSION_SHORT}")
     - TAG_LIST_HUB=$(helper "jitesoft/go", "${TAGS}-ubuntu,${VERSION}-ubuntu,${VERSION_SHORT}-ubuntu")
     - docker buildx build --cache-from="${CI_REGISTRY_IMAGE}/cache:ubuntu-${VERSION_SHORT}" --cache-to="${CI_REGISTRY_IMAGE}/cache:ubuntu-${VERSION_SHORT}" --platform ${ARCHITECTURES} --progress plain --push ${TAG_LIST} ${TAG_LIST_HUB} --build-arg VERSION=${VERSION} -f Ubuntu/Dockerfile .
