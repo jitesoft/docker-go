@@ -89,7 +89,7 @@ download:src:
     - if [ "$OC" = "2" ]; then VERSION_SHORT=$(echo ${VERSION} | cut -d'.' -f1,2); fi
     - TAG_LIST=$(helper "${CI_REGISTRY_IMAGE}/ubuntu", "${TAGS},${VERSION},${VERSION_SHORT}")
     - TAG_LIST_HUB=$(helper "jitesoft/go", "${TAGS}-ubuntu,${VERSION}-ubuntu,${VERSION_SHORT}-ubuntu")
-    - docker buildx build --cache-from=${CI_REGISTRY_IMAGE}/cache:ubuntu-${VERSION_SHORT:-${VERSION --cache-to=${CI_REGISTRY_IMAGE}/cache:ubuntu-${VERSION_SHORT:-${VERSION}} --platform ${ARCHITECTURES} --progress plain --push ${TAG_LIST} ${TAG_LIST_HUB} --build-arg VERSION=${VERSION} -f Ubuntu/Dockerfile .
+    - docker buildx build --cache-from=${CI_REGISTRY_IMAGE}/cache:ubuntu-${VERSION_SHORT:-${VERSION}} --cache-to=${CI_REGISTRY_IMAGE}/cache:ubuntu-${VERSION_SHORT:-${VERSION}} --platform ${ARCHITECTURES} --progress plain --push ${TAG_LIST} ${TAG_LIST_HUB} --build-arg VERSION=${VERSION} -f Ubuntu/Dockerfile .
     - docker pull ${CI_REGISTRY_IMAGE}:${VERSION}
   only:
     refs:
