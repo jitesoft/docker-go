@@ -34,7 +34,7 @@ ENV PATH="/usr/local/go/bin:$PATH" \
 
 COPY --from=stage0-build /usr/local/go /usr/local/go
 
-RUN apk add --no-cache git \
+RUN apk add --no-cache git openssl ca-certificates  \
  && mkdir -p "${GOPATH}/src" "${GOPATH}/bin" \
  && chmod -R 777 ${GOPATH} \
  && [ ! -e /etc/nsswitch.conf ] && echo 'hosts: files dns' > /etc/nsswitch.conf \
