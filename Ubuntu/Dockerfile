@@ -35,7 +35,7 @@ ENV PATH="/usr/local/go/bin:$PATH" \
 
 COPY --from=stage0-build /usr/local/go /usr/local/go
 
-RUN  apt-get iinstall -y git \
+RUN  apt-get install -y git \
  && mkdir -p "${GOPATH}/src" "${GOPATH}/bin" \
  && chmod -R 777 ${GOPATH} \
  && go version \

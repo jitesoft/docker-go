@@ -1,14 +1,16 @@
 include:
   - https://gitlab.com/jitesoft/gitlab-ci-lib/raw/master/container_scan.yml
 
-
 variables:
-  ARCHITECTURES: "linux/amd64,linux/arm64"
+  ARCHITECTURES: "linux/amd64,linux/arm64,linux/ppc64le,linux/s390x,linux/i386"
 
 stages:
   - pre
   - download
-  - build
+  - build-1
+  - build-2
+  - build-3
+  - build-4
   - scan
 
 download:versions:
@@ -71,7 +73,7 @@ download:src:
     - OC=$(echo ${VERSION} | awk -F"." '{print NF-1}')
     - if [ "$OC" = "2" ]; then VERSION_SHORT=$(echo ${VERSION} | cut -d'.' -f1,2); fi
     - TAG_LIST=$(helper "${CI_REGISTRY_IMAGE}", "${TAGS},${VERSION},${VERSION_SHORT}")
-    - docker buildx build --platform ${ARCHITECTURES} --progress plain --push ${TAG_LIST} --build-arg VERSION=${VERSION} -f Alpine/Dockerfile .
+    - docker buildx build --cache-from=${CI_REGISTRY_IMAGE}/cache:alpine --cache-to=${CI_REGISTRY_IMAGE}/cache:alpine --platform ${ARCHITECTURES} --progress plain --push ${TAG_LIST} --build-arg VERSION=${VERSION} -f Alpine/Dockerfile .
 #  only:
 #    refs:
 #      - master
@@ -89,13 +91,14 @@ download:src:
     - OC=$(echo ${VERSION} | awk -F"." '{print NF-1}')
     - if [ "$OC" = "2" ]; then VERSION_SHORT=$(echo ${VERSION} | cut -d'.' -f1,2); fi
     - TAG_LIST=$(helper "${CI_REGISTRY_IMAGE}/ubuntu", "${TAGS},${VERSION},${VERSION_SHORT}")
-    - docker buildx build --platform ${ARCHITECTURES} --progress plain --push ${TAG_LIST} --build-arg VERSION=${VERSION} -f Ubuntu/Dockerfile .
+    - docker buildx build --cache-from=${CI_REGISTRY_IMAGE}/cache:ubuntu --cache-to=${CI_REGISTRY_IMAGE}/cache:ubuntu --platform ${ARCHITECTURES} --progress plain --push ${TAG_LIST} --build-arg VERSION=${VERSION} -f Ubuntu/Dockerfile .
 #  only:
 #    refs:
 #      - master
   tags: [ jitesoft, buildx, amd64, arm64, s390x, ppc64le, i386 ]
 
 build:current:ubuntu:
+  stage: build-2
   variables:
     TAGS: "latest"
   extends: .build:ubuntu
@@ -105,6 +108,7 @@ build:current:ubuntu:
     - VERSION=$(echo ${FILE} | grep -oP '([0-9]{0,3}[.][0-9]{0,3}([.][0-9]{0,3})?)(?=.src.tar.gz)')
 
 build:prev:ubuntu:
+  stage: build-3
   variables:
     TAGS: "prev"
   extends: .build:ubuntu
@@ -114,6 +118,7 @@ build:prev:ubuntu:
     - VERSION=$(echo ${FILE} | grep -oP '([0-9]{0,3}[.][0-9]{0,3}([.][0-9]{0,3})?)(?=.src.tar.gz)')
 
 build:current:alpine:
+  stage: build-1
   variables:
     TAGS: "latest"
   extends: .build:alpine
@@ -123,6 +128,7 @@ build:current:alpine:
     - VERSION=$(echo ${FILE} | grep -oP '([0-9]{0,3}[.][0-9]{0,3}([.][0-9]{0,3})?)(?=.src.tar.gz)')
 
 build:prev:alpine:
+  stage: build-4
   variables:
     TAGS: "prev"
   extends: .build:alpine
