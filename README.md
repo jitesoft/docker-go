@@ -11,37 +11,33 @@ image so that your user does not run as root if not actually required.
 
 ## Tags
 
+Docker Hub and GitLab images are built for amd64 and arm64.
+
 ### Docker Hub
 
 * `jitesoft/go`
     * `1.13-ubunntu`, `latest-ubuntu`
     * `1.12`, `1.12.<minor>`
-    * `1.11`, `1.11.<minor>`
     * `1.12-ubuntu`, `1.12.<minor>-ubuntu`
-    * `1.11-ubuntu`, `1.11.<minor>-ubuntu`
 
 ### GitLab
 
 * `registry.gitlab.com/jitesoft/dockerfiles/go`
     * `1.13-ubunntu`, `latest-ubuntu`
     * `1.12`, `1.12.<minor>`
-    * `1.11`, `1.11.<minor>`
-    * `bootstrap` (go 1.4 for bootstrap compilation) 
+    * `bootstrap` (go 1.11 for bootstrap compilation) 
 * `registry.gitlab.com/jitesoft/dockerfiles/go/ubuntu`
     * `1.13-ubunntu`, `latest-ubuntu`
     * `1.12`, `1.12.<minor>` 
-    * `1.11`, `1.11.<minor>`
-    * `bootstrap` (go 1.4 for bootstrap compilation)
+    * `bootstrap` (go 1.11 for bootstrap compilation)
   
 ### Quay.io
 
 * `quay.io/jitesoft/go`
     * `1.13`, `latest`
     * `1.12`, `1.12.<minor>`
-    * `1.11`, `1.11.<minor>`
     * `1.13-ubunntu`, `latest-ubuntu`
     * `1.12-ubuntu`, `1.12.<minor>-ubuntu`
-    * `1.11-ubuntu`, `1.11.<minor>-ubuntu`
 
 ## Docker files
 
