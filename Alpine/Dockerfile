@@ -7,7 +7,8 @@ ENV CGO_ENABLED=0 \
     GOROOT_BOOTSTRAP="/usr/local/bootstrap"
 
 COPY ./go1.4-bootstrap-20171003.tar.gz /tmp/bootstrap.tar.gz
-COPY ./go1.7.4.src.tar.gz /tmp/go.tar.gz
+COPY ./go1.11.src.tar.gz /tmp/go.tar.gz
+
 
 RUN apk add --no-cache bash gcc musl-dev openssl tar ca-certificates \
  && tar -C /tmp -zxf /tmp/bootstrap.tar.gz \

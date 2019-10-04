@@ -7,7 +7,7 @@ ENV CGO_ENABLED=0 \
     GOARCH="amd64"
 
 COPY ./go1.4-bootstrap-20171003.tar.gz /tmp/bootstrap.tar.gz
-COPY ./go1.7.4.src.tar.gz /tmp/go.tar.gz
+COPY ./go1.11.src.tar.gz /tmp/go.tar.gz
 
 RUN apt-get update \
  && apt-get install -y gcc openssl tar ca-certificates \
