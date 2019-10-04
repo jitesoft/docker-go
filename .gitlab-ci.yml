@@ -74,8 +74,6 @@ download:src:
     - if [ "$OC" = "2" ]; then VERSION_SHORT=$(echo ${VERSION} | cut -d'.' -f1,2); fi
     - TAG_LIST=$(helper "${CI_REGISTRY_IMAGE},jitesoft/go", "${TAGS},${VERSION},${VERSION_SHORT}")
     - docker buildx build --cache-from=${CI_REGISTRY_IMAGE}/cache:alpine --cache-to=${CI_REGISTRY_IMAGE}/cache:alpine-${VERSION_SHORT} --platform ${ARCHITECTURES} --progress plain --push ${TAG_LIST} --build-arg VERSION=${VERSION} -f Alpine/Dockerfile .
-    - helper multitag quay.io/jitesoft/go:${TAGS} quay.io/jitesoft/go:${VERSION} quay.io/jitesoft/go:${VERSION_SHORT}
-    - helper multipush quay.io/jitesoft/go:${TAGS} quay.io/jitesoft/go:${VERSION} quay.io/jitesoft/go:${VERSION_SHORT}
 #  only:
 #    refs:
 #      - master
@@ -96,8 +94,6 @@ download:src:
     - TAG_LIST_HUB=$(helper "jitesoft/go", "${TAGS}-ubuntu,${VERSION}-ubuntu,${VERSION_SHORT}-ubuntu")
     - docker buildx build --cache-from=${CI_REGISTRY_IMAGE}/cache:ubuntu-${VERSION_SHORT} --cache-to=${CI_REGISTRY_IMAGE}/cache:ubuntu-${VERSION_SHORT} --platform ${ARCHITECTURES} --progress plain --push ${TAG_LIST} ${TAG_LIST_HUB} --build-arg VERSION=${VERSION} -f Ubuntu/Dockerfile .
     - docker pull ${CI_REGISTRY_IMAGE}:${VERSION}
-    - helper multitag quay.io/jitesoft/go:${TAGS}-ubuntu quay.io/jitesoft/go:${VERSION}-ubuntu quay.io/jitesoft/go:${VERSION_SHORT}-ubuntu
-    - helper multipush quay.io/jitesoft/go:${TAGS}-ubuntu quay.io/jitesoft/go:${VERSION}-ubuntu quay.io/jitesoft/go:${VERSION_SHORT}-ubuntu
 #  only:
 #    refs:
 #      - master
