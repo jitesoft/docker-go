@@ -73,11 +73,11 @@ download:src:
     - OC=$(echo ${VERSION} | awk -F"." '{print NF-1}')
     - if [ "$OC" = "2" ]; then VERSION_SHORT=$(echo ${VERSION} | cut -d'.' -f1,2); fi
     - TAG_LIST=$(helper "${CI_REGISTRY_IMAGE},jitesoft/go", "${TAGS},${VERSION},${VERSION_SHORT}")
-    - docker buildx build --cache-from=${CI_REGISTRY_IMAGE}/cache:alpine --cache-to=${CI_REGISTRY_IMAGE}/cache:alpine-${VERSION_SHORT} --platform ${ARCHITECTURES} --progress plain --push ${TAG_LIST} --build-arg VERSION=${VERSION} -f Alpine/Dockerfile .
+    - docker buildx build --cache-from=${CI_REGISTRY_IMAGE}/cache:alpine-${VERSION_SHORT} --cache-to=${CI_REGISTRY_IMAGE}/cache:alpine-${VERSION_SHORT} --platform ${ARCHITECTURES} --progress plain --push ${TAG_LIST} --build-arg VERSION=${VERSION} -f Alpine/Dockerfile .
 #  only:
 #    refs:
 #      - master
-  tags: [ jitesoft, buildx, amd64, arm64, s390x, ppc64le, i386 ]
+  tags: [ jitesoft, buildx, amd64, arm64 ]
 
 .build:ubuntu:
   dependencies:
@@ -97,7 +97,7 @@ download:src:
 #  only:
 #    refs:
 #      - master
-  tags: [ jitesoft, buildx, amd64, arm64, s390x, ppc64le, i386 ]
+  tags: [ jitesoft, buildx, amd64, arm64 ]
 
 build:current:ubuntu:
   stage: build-2

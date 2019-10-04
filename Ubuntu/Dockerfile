@@ -40,6 +40,6 @@ RUN apt-get update \
  && mkdir -p "${GOPATH}/src" "${GOPATH}/bin" \
  && chmod -R 777 ${GOPATH} \
  && go version \
- && rm -rf /var/lib/apt/lists/*
+ && apt-get clean
 
 WORKDIR /go
