@@ -139,7 +139,7 @@ build:prev:alpine:
     - FILE=$(cat sha256sum.txt | awk '{print $2}' | tail -1)
     - VERSION=$(echo ${FILE} | grep -oP '([0-9]{0,3}[.][0-9]{0,3}([.][0-9]{0,3})?)(?=.src.tar.gz)')
 
-.scan:current:ubuntu:
+scan:current:ubuntu:
   needs:
     - build:current:ubuntu
   stage: scan
@@ -148,7 +148,7 @@ build:prev:alpine:
     SCANNING_IMAGE_NAME: "${CI_REGISTRY_IMAGE}/ubuntu:latest"
     GIT_STRATEGY: none
 
-.scan:prev:ubuntu:
+scan:prev:ubuntu:
   needs:
     - build:prev:ubuntu
   stage: scan
@@ -157,7 +157,7 @@ build:prev:alpine:
     SCANNING_IMAGE_NAME: "${CI_REGISTRY_IMAGE}/ubuntu:prev"
     GIT_STRATEGY: none
 
-.scan:current:alpine:
+scan:current:alpine:
   needs:
     - build:current:alpine
   stage: scan
@@ -166,7 +166,7 @@ build:prev:alpine:
     SCANNING_IMAGE_NAME: "${CI_REGISTRY_IMAGE}:latest"
     GIT_STRATEGY: none
 
-.scan:prev:alpine:
+scan:prev:alpine:
   needs:
     - build:prev:alpine
   extends: .container_scanning
