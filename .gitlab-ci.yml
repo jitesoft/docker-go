@@ -1,9 +1,8 @@
 include:
-  - https://gitlab.com/jitesoft/gitlab-ci-lib/raw/master/container_scan.yml
-
+  - https://gitlab.com/jitesoft/gitlab-ci-lib/raw/master/container_scan-v2.yml
 
 variables:
-  ARCHITECTURES: "linux/amd64"
+  ARCHITECTURES: "linux/amd64,linux/arm64"
 
 stages:
   - pre
@@ -29,9 +28,11 @@ download:versions:
     paths:
       - sha256sum.txt
     expire_in: 1 day
+  tags: [ jitesoft ]
   only:
     refs:
       - master
+
 
 download:src:
   image: registry.gitlab.com/jitesoft/dockerfiles/alpine:latest
@@ -55,6 +56,7 @@ download:src:
     paths:
       - ${CI_PROJECT_DIR}/*.src.tar.gz
     expire_in: 1 day
+  tags: [ jitesoft ]
   only:
     refs:
       - master
@@ -67,15 +69,15 @@ download:src:
   image: registry.gitlab.com/jitesoft/dockerfiles/misc:latest
   script:
     - DOCKER_BUILDKIT=1
-    - VERSION_SHORT=""
+    - VERSION_SHORT="${VERSION_SHORT}"
     - OC=$(echo ${VERSION} | awk -F"." '{print NF-1}')
     - if [ "$OC" = "2" ]; then VERSION_SHORT=$(echo ${VERSION} | cut -d'.' -f1,2); fi
-    - TAG_LIST=$(helper "${CI_REGISTRY_IMAGE}", "${TAGS},${VERSION},${VERSION_SHORT}")
-    - docker buildx build --platform ${ARCHITECTURES} --progress plain --push ${TAG_LIST} --build-arg VERSION=${VERSION} -f Alpine/Dockerfile .
+    - TAG_LIST=$(helper "${CI_REGISTRY_IMAGE},jitesoft/go", "${TAGS},${VERSION},${VERSION_SHORT}")
+    - docker buildx build --cache-from="${CI_REGISTRY_IMAGE}/cache:alpine-${VERSION_SHORT}" --cache-to="${CI_REGISTRY_IMAGE}/cache:alpine-${VERSION_SHORT}" --platform ${ARCHITECTURES} --progress plain --push ${TAG_LIST} --build-arg VERSION=${VERSION} -f Alpine/Dockerfile .
   only:
     refs:
       - master
-  tags: [ jitesoft, buildx, amd64, arm64, s390x, ppc64le, i386 ]
+  tags: [ jitesoft, buildx, amd64, arm64 ]
 
 .build:ubuntu:
   dependencies:
@@ -85,17 +87,20 @@ download:src:
   image: registry.gitlab.com/jitesoft/dockerfiles/misc:latest
   script:
     - DOCKER_BUILDKIT=1
-    - VERSION_SHORT=""
+    - VERSION_SHORT="${VERSION_SHORT}"
     - OC=$(echo ${VERSION} | awk -F"." '{print NF-1}')
     - if [ "$OC" = "2" ]; then VERSION_SHORT=$(echo ${VERSION} | cut -d'.' -f1,2); fi
     - TAG_LIST=$(helper "${CI_REGISTRY_IMAGE}/ubuntu", "${TAGS},${VERSION},${VERSION_SHORT}")
-    - docker buildx build --platform ${ARCHITECTURES} --progress plain --push ${TAG_LIST} --build-arg VERSION=${VERSION} -f Ubuntu/Dockerfile .
+    - TAG_LIST_HUB=$(helper "jitesoft/go", "${TAGS}-ubuntu,${VERSION}-ubuntu,${VERSION_SHORT}-ubuntu")
+    - docker buildx build --cache-from="${CI_REGISTRY_IMAGE}/cache:ubuntu-${VERSION_SHORT}" --cache-to="${CI_REGISTRY_IMAGE}/cache:ubuntu-${VERSION_SHORT}" --platform ${ARCHITECTURES} --progress plain --push ${TAG_LIST} ${TAG_LIST_HUB} --build-arg VERSION=${VERSION} -f Ubuntu/Dockerfile .
+    - docker pull ${CI_REGISTRY_IMAGE}:${VERSION}
   only:
     refs:
       - master
-  tags: [ jitesoft, buildx, amd64, arm64, s390x, ppc64le, i386 ]
+  tags: [ jitesoft, buildx, amd64, arm64 ]
 
 build:current:ubuntu:
+  stage: build
   variables:
     TAGS: "latest"
   extends: .build:ubuntu
@@ -105,6 +110,7 @@ build:current:ubuntu:
     - VERSION=$(echo ${FILE} | grep -oP '([0-9]{0,3}[.][0-9]{0,3}([.][0-9]{0,3})?)(?=.src.tar.gz)')
 
 build:prev:ubuntu:
+  stage: build
   variables:
     TAGS: "prev"
   extends: .build:ubuntu
@@ -114,6 +120,7 @@ build:prev:ubuntu:
     - VERSION=$(echo ${FILE} | grep -oP '([0-9]{0,3}[.][0-9]{0,3}([.][0-9]{0,3})?)(?=.src.tar.gz)')
 
 build:current:alpine:
+  stage: build
   variables:
     TAGS: "latest"
   extends: .build:alpine
@@ -123,6 +130,7 @@ build:current:alpine:
     - VERSION=$(echo ${FILE} | grep -oP '([0-9]{0,3}[.][0-9]{0,3}([.][0-9]{0,3})?)(?=.src.tar.gz)')
 
 build:prev:alpine:
+  stage: build
   variables:
     TAGS: "prev"
   extends: .build:alpine
@@ -131,37 +139,36 @@ build:prev:alpine:
     - FILE=$(cat sha256sum.txt | awk '{print $2}' | tail -1)
     - VERSION=$(echo ${FILE} | grep -oP '([0-9]{0,3}[.][0-9]{0,3}([.][0-9]{0,3})?)(?=.src.tar.gz)')
 
-scan:current:ubuntu:
+.scan:current:ubuntu:
   needs:
-    - "build:current:ubuntu"
+    - build:current:ubuntu
   stage: scan
   extends: .container_scanning
   variables:
     SCANNING_IMAGE_NAME: "${CI_REGISTRY_IMAGE}/ubuntu:latest"
     GIT_STRATEGY: none
 
-scan:prev:ubuntu:
+.scan:prev:ubuntu:
   needs:
-    - "build:prev:ubuntu"
+    - build:prev:ubuntu
   stage: scan
   extends: .container_scanning
   variables:
     SCANNING_IMAGE_NAME: "${CI_REGISTRY_IMAGE}/ubuntu:prev"
     GIT_STRATEGY: none
 
-scan:current:alpine:
+.scan:current:alpine:
   needs:
-    - "build:current:alpine"
+    - build:current:alpine
   stage: scan
   extends: .container_scanning
   variables:
     SCANNING_IMAGE_NAME: "${CI_REGISTRY_IMAGE}:latest"
     GIT_STRATEGY: none
 
-scan:prev:alpine:
+.scan:prev:alpine:
   needs:
-    - "build:prev:alpine"
-  stage: scan
+    - build:prev:alpine
   extends: .container_scanning
   variables:
     SCANNING_IMAGE_NAME: "${CI_REGISTRY_IMAGE}:prev"

@@ -1,11 +1,15 @@
 FROM registry.gitlab.com/jitesoft/dockerfiles/go/ubuntu:bootstrap AS stage0-build
 ARG VERSION
+ARG TARGETARCH
 ARG TARGETPLATFORM
+
+ENV GOOS="linux" \
+    GOARCH="${TARGETARCH}"
 
 COPY ./go${VERSION}.src.tar.gz /tmp/go.tar.gz
 
 RUN apt-get update \
- && apt-get install -y gcc openssl ca-certificates \
+ && apt-get install -y git gcc openssl ca-certificates \
  && tar -C /usr/local -xzf /tmp/go.tar.gz \
  && rm -f /tmp/go.tar.gz \
  && cd /usr/local/go/src \
@@ -31,8 +35,11 @@ ENV PATH="/usr/local/go/bin:$PATH" \
 
 COPY --from=stage0-build /usr/local/go /usr/local/go
 
-RUN  mkdir -p "${GOPATH}/src" "${GOPATH}/bin" \
+RUN apt-get update \
+ && apt-get install -y git openssl ca-certificates \
+ && mkdir -p "${GOPATH}/src" "${GOPATH}/bin" \
  && chmod -R 777 ${GOPATH} \
- && go version
+ && go version \
+ && apt-get clean
 
 WORKDIR /go
