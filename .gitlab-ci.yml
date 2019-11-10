@@ -77,7 +77,7 @@ download:src:
   only:
     refs:
       - master
-  tags: [ jitesoft, buildx, amd64, arm64 ]
+  tags: [ jitesoft, buildx, protected ]
 
 .build:ubuntu:
   dependencies:
@@ -96,7 +96,7 @@ download:src:
   only:
     refs:
       - master
-  tags: [ jitesoft, buildx, amd64, arm64 ]
+  tags: [ jitesoft, buildx, protected ]
 
 build:current:ubuntu:
   stage: build
