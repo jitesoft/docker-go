@@ -16,28 +16,27 @@ Docker Hub and GitLab images are built for amd64 and arm64.
 ### Docker Hub
 
 * `jitesoft/go`
+    * `1.13`, `latest` (alpine)
     * `1.13-ubunntu`, `latest-ubuntu`
-    * `1.12`, `1.12.<minor>`
-    * `1.12-ubuntu`, `1.12.<minor>-ubuntu`
+    * `1.13-debian`, `latest-debian`
 
 ### GitLab
 
 * `registry.gitlab.com/jitesoft/dockerfiles/go`
-    * `1.13-ubunntu`, `latest-ubuntu`
-    * `1.12`, `1.12.<minor>`
+    * `1.13`, `latest`
     * `bootstrap` (go 1.11 for bootstrap compilation) 
 * `registry.gitlab.com/jitesoft/dockerfiles/go/ubuntu`
-    * `1.13-ubunntu`, `latest-ubuntu`
-    * `1.12`, `1.12.<minor>` 
-    * `bootstrap` (go 1.11 for bootstrap compilation)
+    * `1.13`, `latest`
+    * `bootstrap` (go 1.11 for bootstrap compilation) 
+* `registry.gitlab.com/jitesoft/dockerfiles/go/debian`
+    * `1.13`, `latest`
   
 ### Quay.io
 
 * `quay.io/jitesoft/go`
     * `1.13`, `latest`
-    * `1.12`, `1.12.<minor>`
-    * `1.13-ubunntu`, `latest-ubuntu`
-    * `1.12-ubuntu`, `1.12.<minor>-ubuntu`
+    * `1.13-ubuntu`, `latest-ubuntu`
+    * `1.13-debian`, `latest-debian`
 
 ## Docker files
 
