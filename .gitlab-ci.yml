@@ -40,7 +40,7 @@ download:bootstrap:
 
 build:debianish:amd:
   stage: build
-  image: registry.gitlab.com/jitesoft/debian:latest
+  image: registry.gitlab.com/jitesoft/dockerfiles/debian:latest
   dependencies:
     - download:bootstrap
   variables:
@@ -78,7 +78,7 @@ build:debianish:amd:
 
 build:debianish:arm:
   stage: build
-  image: registry.gitlab.com/jitesoft/debian:latest
+  image: registry.gitlab.com/jitesoft/dockerfiles/debian:latest
   dependencies:
     - download:bootstrap
   variables:
