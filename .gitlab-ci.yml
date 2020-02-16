@@ -38,26 +38,77 @@ download:bootstrap:
     refs:
       - bootstrap
 
-build:bootstrap:alpine:
+build:debianish:amd:
   stage: build
+  image: registry.gitlab.com/jitesoft/debian:latest
   dependencies:
     - download:bootstrap
-  image: registry.gitlab.com/jitesoft/dockerfiles/docker/buildx:latest
+  variables:
+    GOOS: linux
+    GOARCH: amd64
+    CGO_ENABLED: 0
+    GOROOT_BOOTSTRAP: /opt/bootstrap
+  before_script:
+    - apt-get update
+    - apt-get install -y gcc openssl tar ca-certificates
+    - tar -zxf go1.4-bootstrap-20171003.tar.gz -C /tmp
+    - mkdir -p /opt/bootstrap
+    - mv /tmp/go /opt/bootstrap
+    - tar -xzf /tmp/go.11.src.tar.gz -C /usr/local
   script:
-    - docker buildx build --platform ${ARCHITECTURES} --progress plain --push -t ${CI_REGISTRY_IMAGE}:bootstrap -f Alpine/Dockerfile .
-  only:
-    refs:
-      - bootstrap
-  tags: [ jitesoft, buildx, amd64, arm64, s390x, ppc64le, i386 ]
+    - cd /opt/bootstrap/src
+    - chmod +x make.bash
+    - ./make.bash
+    - cd /usr/local/go/src
+    - chmod +x make.bash
+    - ./make.bash --no-clean
+    - export GOROOT_BOOTSTRAP=/usr/local/go
+    - export PATH="/usr/local/go/bin:$PATH"
+    - chmod +x bootstrap.bash
+    - ./bootstrap.bash
+    - cd ${CI_PROJECT_DIR}
+    - cp /usr/local/go-linux-amd64-bootstrap.tbz ${CI_PROJECT_DIR}/bootstrap.tbz
+  artifacts:
+    paths:
+      - bootstrap.tbz
+    expire_in: 30 days
+  tags:
+    - native-amd64
 
-build:bootstrap:ubuntu:
+
+build:debianish:arm:
   stage: build
+  image: registry.gitlab.com/jitesoft/debian:latest
   dependencies:
     - download:bootstrap
-  image: registry.gitlab.com/jitesoft/dockerfiles/docker/buildx:latest
+  variables:
+    GOOS: linux
+    GOARCH: arm64
+    CGO_ENABLED: 0
+    GOROOT_BOOTSTRAP: /opt/bootstrap
+  before_script:
+    - apt-get update
+    - apt-get install -y gcc openssl tar ca-certificates
+    - tar -zxf go1.4-bootstrap-20171003.tar.gz -C /tmp
+    - mkdir -p /opt/bootstrap
+    - mv /tmp/go /opt/bootstrap
+    - tar -xzf /tmp/go.11.src.tar.gz -C /usr/local
   script:
-    - docker buildx build --platform ${ARCHITECTURES} --progress plain --push -t ${CI_REGISTRY_IMAGE}/ubuntu:bootstrap -f Ubuntu/Dockerfile .
-  only:
-    refs:
-      - bootstrap
-  tags: [ jitesoft, buildx, amd64, arm64, s390x, ppc64le, i386 ]
+    - cd /opt/bootstrap/src
+    - chmod +x make.bash
+    - ./make.bash
+    - cd /usr/local/go/src
+    - chmod +x make.bash
+    - ./make.bash --no-clean
+    - export GOROOT_BOOTSTRAP=/usr/local/go
+    - export PATH="/usr/local/go/bin:$PATH"
+    - chmod +x bootstrap.bash
+    - ./bootstrap.bash
+    - cd ${CI_PROJECT_DIR}
+    - cp /usr/local/go-linux-arm64-bootstrap.tbz ${CI_PROJECT_DIR}/bootstrap.tbz
+  artifacts:
+    paths:
+      - bootstrap.tbz
+    expire_in: 30 days
+  tags:
+    - native-aarch64
