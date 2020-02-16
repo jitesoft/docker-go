@@ -33,7 +33,6 @@ download:versions:
     refs:
       - master
 
-
 download:src:
   image: registry.gitlab.com/jitesoft/dockerfiles/alpine:latest
   stage: download
@@ -68,7 +67,6 @@ download:src:
   stage: build
   image: registry.gitlab.com/jitesoft/dockerfiles/misc:latest
   script:
-    - DOCKER_BUILDKIT=1
     - VERSION_SHORT="${VERSION}"
     - OC=$(echo ${VERSION} | awk -F"." '{print NF-1}')
     - if [ "$OC" = "2" ]; then VERSION_SHORT=$(echo ${VERSION} | cut -d'.' -f1,2); fi
@@ -86,13 +84,31 @@ download:src:
   stage: build
   image: registry.gitlab.com/jitesoft/dockerfiles/misc:latest
   script:
-    - DOCKER_BUILDKIT=1
     - VERSION_SHORT="${VERSION}"
     - OC=$(echo ${VERSION} | awk -F"." '{print NF-1}')
     - if [ "$OC" = "2" ]; then VERSION_SHORT=$(echo ${VERSION} | cut -d'.' -f1,2); fi
     - TAG_LIST=$(helper "${CI_REGISTRY_IMAGE}/ubuntu", "${TAGS},${VERSION}${VERSION_SHORT}")
     - TAG_LIST_HUB=$(helper "jitesoft/go", "${TAGS}-ubuntu,${VERSION}-ubuntu,${VERSION_SHORT}-ubuntu")
     - docker buildx build --cache-from="${CI_REGISTRY_IMAGE}/cache:ubuntu-${VERSION_SHORT}" --cache-to="${CI_REGISTRY_IMAGE}/cache:ubuntu-${VERSION_SHORT}" --platform ${ARCHITECTURES} --progress plain --push ${TAG_LIST} ${TAG_LIST_HUB} --build-arg VERSION=${VERSION} -f Ubuntu/Dockerfile .
+  only:
+    refs:
+      - master
+  tags: [ jitesoft, buildx, protected ]
+
+
+.build:debian:
+  dependencies:
+    - download:src
+    - download:versions
+  stage: build
+  image: registry.gitlab.com/jitesoft/dockerfiles/misc:latest
+  script:
+    - VERSION_SHORT="${VERSION}"
+    - OC=$(echo ${VERSION} | awk -F"." '{print NF-1}')
+    - if [ "$OC" = "2" ]; then VERSION_SHORT=$(echo ${VERSION} | cut -d'.' -f1,2); fi
+    - TAG_LIST=$(helper "${CI_REGISTRY_IMAGE}/debian", "${TAGS},${VERSION}${VERSION_SHORT}")
+    - TAG_LIST_HUB=$(helper "jitesoft/go", "${TAGS}-debian,${VERSION}-debian,${VERSION_SHORT}-debian")
+    - docker buildx build --cache-from="${CI_REGISTRY_IMAGE}/cache:debian-${VERSION_SHORT}" --cache-to="${CI_REGISTRY_IMAGE}/cache:debian-${VERSION_SHORT}" --platform ${ARCHITECTURES} --progress plain --push ${TAG_LIST} ${TAG_LIST_HUB} --build-arg VERSION=${VERSION} -f Debian/Dockerfile .
   only:
     refs:
       - master
@@ -112,7 +128,27 @@ build:prev:ubuntu:
   stage: build
   variables:
     TAGS: "prev"
-  extends: .build:ubuntu
+  extends: .build:debian
+  before_script:
+    - apk add --no-cache grep
+    - FILE=$(cat sha256sum.txt | awk '{print $2}' | tail -1)
+    - VERSION=$(echo ${FILE} | grep -oP '([0-9]{0,3}[.][0-9]{0,3}([.][0-9]{0,3})?)(?=.src.tar.gz)')
+
+build:current:debian:
+  stage: build
+  variables:
+    TAGS: "latest"
+  extends: .build:debian
+  before_script:
+    - apk add --no-cache grep
+    - FILE=$(cat sha256sum.txt | awk '{print $2}' | head -1)
+    - VERSION=$(echo ${FILE} | grep -oP '([0-9]{0,3}[.][0-9]{0,3}([.][0-9]{0,3})?)(?=.src.tar.gz)')
+
+build:prev:debian:
+  stage: build
+  variables:
+    TAGS: "prev"
+  extends: .build:debian
   before_script:
     - apk add --no-cache grep
     - FILE=$(cat sha256sum.txt | awk '{print $2}' | tail -1)
@@ -154,6 +190,24 @@ scan:prev:ubuntu:
   extends: .container_scanning
   variables:
     SCANNING_IMAGE_NAME: "${CI_REGISTRY_IMAGE}/ubuntu:prev"
+    GIT_STRATEGY: none
+
+scan:current:debian:
+  needs:
+    - build:current:debian
+  stage: scan
+  extends: .container_scanning
+  variables:
+    SCANNING_IMAGE_NAME: "${CI_REGISTRY_IMAGE}/debian:latest"
+    GIT_STRATEGY: none
+
+scan:prev:debian:
+  needs:
+    - build:prev:debian
+  stage: scan
+  extends: .container_scanning
+  variables:
+    SCANNING_IMAGE_NAME: "${CI_REGISTRY_IMAGE}/debian:prev"
     GIT_STRATEGY: none
 
 scan:current:alpine:
