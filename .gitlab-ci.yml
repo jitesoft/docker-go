@@ -131,7 +131,7 @@ build:debianish:arm:
     - mkdir bin
     - mv bootstrap-arm64.tbz bin/
     - mv bootstrap-amd64.tbz bin/
-    - docker buildx build --platform linux/amd64,linux/arm64 --push -t ${CI_REGISTRY_IMAGE}/bootstrap:${TYPE} --progress plain --build-arg TAG=${TAG} --build-arg IMAGE=${IMAGE} .
+    - docker buildx build --platform linux/amd64,linux/arm64 --push -t ${CI_REGISTRY_IMAGE}/bootstrap:${IMAGE} --progress plain --build-arg TAG=${TAG} --build-arg IMAGE=${IMAGE} .
 
 containerize:ubuntu:
   extends: .containerize
