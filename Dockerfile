@@ -1,6 +1,7 @@
 # syntax = docker/dockerfile:experimental
 ARG IMAGE
-FROM registry.gitlab.com/jitesoft/dockerfiles/${IMAGE}
+ARG TAG
+FROM registry.gitlab.com/jitesoft/dockerfiles/${IMAGE}:${TAG}
 LABEL maintainer="Johannes Tegnér <johannes@jitesoft.com>" \
       maintainer.org="Jitesoft" \
       maintainer.org.uri="https://jitesoft.com" \
@@ -11,12 +12,14 @@ LABEL maintainer="Johannes Tegnér <johannes@jitesoft.com>" \
       com.jitesoft.app.go.version="bootstrap"
 
 ARG TARGETARCH
+ARG IMAGE
 ENV CGO_ENABLED=0 \
     GOOS="linux" \
     GOARCH="${TARGETARCH}" \
     GOROOT_BOOTSTRAP="/usr/local/bootstrap" \
     PATH="/usr/local/bootstrap/bin:$PATH"
 
-RUN mkdir /usr/local/bootstrap \
+RUN if [ "${IMAGE}" = "debian" ]; then apt-get install bzip2; fi \
+ && mkdir /usr/local/bootstrap \
  && --mount=type=bind,source=/bin,target=/tmp/bin \
     tar -xhjf /tmp/bin/bootstrap-${GOARCH}.tbz -C /usr/local/bootstrap --strip-components=1

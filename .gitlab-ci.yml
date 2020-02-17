@@ -135,18 +135,27 @@ build:debianish:arm:
 
 containerize:ubuntu:
   extends: .containerize
+  needs:
+    - build:debianish:arm
+    - build:debianish:amd
   variables:
     IMAGE: ubuntu
     TAG: bionic
 
 containerize:debian:
   extends: .containerize
+  needs:
+    - build:debianish:arm
+    - build:debianish:amd
   variables:
     IMAGE: debian
     TAG: stretch-slim
 
 containerize:alpine:
   extends: .containerize
+  needs:
+    - build:alpine:arm
+    - build:alpine:amd
   variables:
     IMAGE: alpine
     TAG: latest
