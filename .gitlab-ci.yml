@@ -8,6 +8,7 @@ stages:
   - pre
   - download
   - build
+  - containerize
   - scan
 
 download:versions:
@@ -60,117 +61,282 @@ download:src:
     refs:
       - master
 
-# TODO: Rewrite build to actually build src. Containerize copies from disk not stage0.
-
-.build:alpine:
-  dependencies:
+.build:base:
+  needs:
     - download:src
     - download:versions
   stage: build
+  script:
+    - |
+      if [ "${TYPE}" == "latest" ]; then
+        FILE=$(cat sha256sum.txt | awk '{print $2}' | head -1)
+        VERSION=$(echo ${FILE} | grep -oP '([0-9]{0,3}[.][0-9]{0,3}([.][0-9]{0,3})?)(?=.src.tar.gz)')
+      else
+        - FILE=$(cat sha256sum.txt | awk '{print $2}' | tail -1)
+        - VERSION=$(echo ${FILE} | grep -oP '([0-9]{0,3}[.][0-9]{0,3}([.][0-9]{0,3})?)(?=.src.tar.gz)')
+      fi
+    - echo "${TYPE} ${VERSION}"
+    - mkdir /opt/src
+    - tar -xzhf go${VERSION}.src.tar.gz
+    - cd go/src
+    - ./make.bash
+    - rm -rf /usr/local/go/pkg/bootstrap
+    - rm -rf /usr/local/go/pkg/obj
+  after_script:
+    - $(cd /usr/local/go && tar -czf go-${ARCH}.tar.gz *)
+  artifacts:
+    paths:
+      - go-${ARCH}.tar.gz
+    expire_in: 1 day
+  only:
+    refs:
+      - master
+
+.build:alpine:
+  extends: .build:base
+  image: registry.gitlab.com/jitesoft/dockerfiles/go/bootstrap:alpine
+  before_script:
+    - apk add --no-cache git gcc openssl ca-certificates musl-dev bash
+
+.build:debian:
+  extends: .build:base
+  image: registry.gitlab.com/jitesoft/dockerfiles/go/bootstrap:debian
+  before_script:
+    - apt-get update
+    - apt-get install -y git gcc openssl ca-certificates
+
+.build:ubuntu:
+  extends: .build:base
+  image: registry.gitlab.com/jitesoft/dockerfiles/go/bootstrap:ubuntu
+  before_script:
+    - apt-get update
+    - apt-get install -y git gcc openssl ca-certificates
+
+build:alpine:amd:latest:
+  extends: .build:alpine
+  variables:
+    ARCH: amd64
+    TYPE: latest
+  tags:
+    - native-amd64
+
+build:alpine:amd:prev:
+  extends: .build:alpine
+  variables:
+    ARCH: amd64
+    TYPE: prev
+  tags:
+    - native-amd64
+
+build:alpine:arm:latest:
+  extends: .build:alpine
+  variables:
+    ARCH: arm64
+    TYPE: latest
+  tags:
+    - native-aarch64
+
+build:alpine:arm:prev:
+  extends: .build:alpine
+  variables:
+    ARCH: arm64
+    TYPE: prev
+  tags:
+    - native-aarch64
+
+build:ubuntu:amd:latest:
+  extends: .build:ubuntu
+  variables:
+    ARCH: amd64
+    TYPE: latest
+  tags:
+    - native-amd64
+
+build:ubuntu:amd:prev:
+  extends: .build:ubuntu
+  variables:
+    ARCH: amd64
+    TYPE: prev
+  tags:
+    - native-amd64
+
+build:ubuntu:arm:latest:
+  extends: .build:ubuntu
+  variables:
+    ARCH: arm64
+    TYPE: latest
+  tags:
+    - native-aarch64
+
+build:ubuntu:arm:prev:
+  extends: .build:ubuntu
+  variables:
+    ARCH: arm64
+    TYPE: prev
+  tags:
+    - native-aarch64
+
+build:debian:amd:latest:
+  extends: .build:debian
+  variables:
+    ARCH: amd64
+    TYPE: latest
+  tags:
+    - native-amd64
+
+build:debian:amd:prev:
+  extends: .build:debian
+  variables:
+    ARCH: amd64
+    TYPE: prev
+  tags:
+    - native-amd64
+
+build:debian:arm:latest:
+  extends: .build:debian
+  variables:
+    ARCH: arm64
+    TYPE: latest
+  tags:
+    - native-aarch64
+
+build:debian:arm:prev:
+  extends: .build:debian
+  variables:
+    ARCH: arm64
+    TYPE: prev
+  tags:
+    - native-aarch64
+
+.containerize:alpine:
+  stage: containerize
   image: registry.gitlab.com/jitesoft/dockerfiles/misc:latest
   script:
+    - mkdir bin
+    - mv *.tar.gz bin/
     - VERSION_SHORT="${VERSION}"
     - OC=$(echo ${VERSION} | awk -F"." '{print NF-1}')
     - if [ "$OC" = "2" ]; then VERSION_SHORT=$(echo ${VERSION} | cut -d'.' -f1,2); fi
     - TAG_LIST=$(helper "${CI_REGISTRY_IMAGE},jitesoft/go", "${TAGS},${VERSION},${VERSION_SHORT}")
-    - docker buildx build --cache-from="${CI_REGISTRY_IMAGE}/cache:alpine-${VERSION_SHORT}" --cache-to="${CI_REGISTRY_IMAGE}/cache:alpine-${VERSION_SHORT}" --platform ${ARCHITECTURES} --progress plain --push ${TAG_LIST} --build-arg VERSION=${VERSION} -f Alpine/Dockerfile .
+    - docker buildx build --platform ${ARCHITECTURES} --progress plain --push ${TAG_LIST} --build-arg VERSION=${VERSION} -f Alpine/Dockerfile .
   only:
     refs:
       - master
   tags: [ jitesoft, buildx, protected ]
 
-.build:ubuntu:
-  dependencies:
-    - download:src
-    - download:versions
-  stage: build
+.containerize:ubuntu:
+  stage: containerize
   image: registry.gitlab.com/jitesoft/dockerfiles/misc:latest
   script:
+    - mkdir bin
+    - mv *.tar.gz bin/
     - VERSION_SHORT="${VERSION}"
     - OC=$(echo ${VERSION} | awk -F"." '{print NF-1}')
     - if [ "$OC" = "2" ]; then VERSION_SHORT=$(echo ${VERSION} | cut -d'.' -f1,2); fi
     - TAG_LIST=$(helper "${CI_REGISTRY_IMAGE}/ubuntu", "${TAGS},${VERSION}${VERSION_SHORT}")
     - TAG_LIST_HUB=$(helper "jitesoft/go", "${TAGS}-ubuntu,${VERSION}-ubuntu,${VERSION_SHORT}-ubuntu")
-    - docker buildx build --cache-from="${CI_REGISTRY_IMAGE}/cache:ubuntu-${VERSION_SHORT}" --cache-to="${CI_REGISTRY_IMAGE}/cache:ubuntu-${VERSION_SHORT}" --platform ${ARCHITECTURES} --progress plain --push ${TAG_LIST} ${TAG_LIST_HUB} --build-arg VERSION=${VERSION} -f Ubuntu/Dockerfile .
+    - docker buildx build --platform ${ARCHITECTURES} --progress plain --push ${TAG_LIST} ${TAG_LIST_HUB} --build-arg VERSION=${VERSION} -f Ubuntu/Dockerfile .
   only:
     refs:
       - master
   tags: [ jitesoft, buildx, protected ]
 
-
-.build:debian:
-  dependencies:
-    - download:src
-    - download:versions
-  stage: build
+.containerize:debian:
+  stage: containerize
   image: registry.gitlab.com/jitesoft/dockerfiles/misc:latest
   script:
+    - mkdir bin
+    - mv *.tar.gz bin/
     - VERSION_SHORT="${VERSION}"
     - OC=$(echo ${VERSION} | awk -F"." '{print NF-1}')
     - if [ "$OC" = "2" ]; then VERSION_SHORT=$(echo ${VERSION} | cut -d'.' -f1,2); fi
     - TAG_LIST=$(helper "${CI_REGISTRY_IMAGE}/debian", "${TAGS},${VERSION}${VERSION_SHORT}")
     - TAG_LIST_HUB=$(helper "jitesoft/go", "${TAGS}-debian,${VERSION}-debian,${VERSION_SHORT}-debian")
-    - docker buildx build --cache-from="${CI_REGISTRY_IMAGE}/cache:debian-${VERSION_SHORT}" --cache-to="${CI_REGISTRY_IMAGE}/cache:debian-${VERSION_SHORT}" --platform ${ARCHITECTURES} --progress plain --push ${TAG_LIST} ${TAG_LIST_HUB} --build-arg VERSION=${VERSION} -f Debian/Dockerfile .
+    - docker buildx build --platform ${ARCHITECTURES} --progress plain --push ${TAG_LIST} ${TAG_LIST_HUB} --build-arg VERSION=${VERSION} -f Debian/Dockerfile .
   only:
     refs:
       - master
   tags: [ jitesoft, buildx, protected ]
 
-build:current:ubuntu:
-  stage: build
+containerize:current:ubuntu:
+  stage: containerize
+  needs:
+    - build:ubuntu:arm:latest
+    - build:ubuntu:amd:latest
+    - download:versions
   variables:
     TAGS: "latest"
-  extends: .build:ubuntu
+  extends: .containerize:ubuntu
   before_script:
     - apk add --no-cache grep
     - FILE=$(cat sha256sum.txt | awk '{print $2}' | head -1)
     - VERSION=$(echo ${FILE} | grep -oP '([0-9]{0,3}[.][0-9]{0,3}([.][0-9]{0,3})?)(?=.src.tar.gz)')
 
-build:prev:ubuntu:
-  stage: build
+containerize:prev:ubuntu:
+  stage: containerize
+  needs:
+    - build:ubuntu:arm:prev
+    - build:ubuntu:amd:prev
+    - download:versions
   variables:
     TAGS: "prev"
-  extends: .build:debian
+  extends: .containerize:debian
   before_script:
     - apk add --no-cache grep
     - FILE=$(cat sha256sum.txt | awk '{print $2}' | tail -1)
     - VERSION=$(echo ${FILE} | grep -oP '([0-9]{0,3}[.][0-9]{0,3}([.][0-9]{0,3})?)(?=.src.tar.gz)')
 
-build:current:debian:
-  stage: build
+containerize:current:debian:
+  stage: containerize
+  needs:
+    - build:debian:arm:latest
+    - build:debian:amd:latest
+    - download:versions
   variables:
     TAGS: "latest"
-  extends: .build:debian
+  extends: .containerize:debian
   before_script:
     - apk add --no-cache grep
     - FILE=$(cat sha256sum.txt | awk '{print $2}' | head -1)
     - VERSION=$(echo ${FILE} | grep -oP '([0-9]{0,3}[.][0-9]{0,3}([.][0-9]{0,3})?)(?=.src.tar.gz)')
 
-build:prev:debian:
-  stage: build
+containerize:prev:debian:
+  stage: containerize
+  needs:
+    - build:debian:arm:prev
+    - build:debian:amd:prev
+    - download:versions
   variables:
     TAGS: "prev"
-  extends: .build:debian
+  extends: .containerize:debian
   before_script:
     - apk add --no-cache grep
     - FILE=$(cat sha256sum.txt | awk '{print $2}' | tail -1)
     - VERSION=$(echo ${FILE} | grep -oP '([0-9]{0,3}[.][0-9]{0,3}([.][0-9]{0,3})?)(?=.src.tar.gz)')
 
-build:current:alpine:
-  stage: build
+containerize:current:alpine:
+  stage: containerize
+  needs:
+    - build:alpine:arm:latest
+    - build:alpine:amd:latest
+    - download:versions
   variables:
     TAGS: "latest"
-  extends: .build:alpine
+  extends: .containerize:alpine
   before_script:
     - apk add --no-cache grep
     - FILE=$(cat sha256sum.txt | awk '{print $2}' | head -1)
     - VERSION=$(echo ${FILE} | grep -oP '([0-9]{0,3}[.][0-9]{0,3}([.][0-9]{0,3})?)(?=.src.tar.gz)')
 
-build:prev:alpine:
-  stage: build
+containerize:prev:alpine:
+  needs:
+    - build:alpine:arm:prev
+    - build:alpine:amd:prev
+    - download:versions
+  stage: containerize
   variables:
     TAGS: "prev"
-  extends: .build:alpine
+  extends: .containerize:alpine
   before_script:
     - apk add --no-cache grep
     - FILE=$(cat sha256sum.txt | awk '{print $2}' | tail -1)
@@ -178,7 +344,7 @@ build:prev:alpine:
 
 scan:current:ubuntu:
   needs:
-    - build:current:ubuntu
+    - containerize:current:ubuntu
   stage: scan
   extends: .container_scanning
   variables:
@@ -187,7 +353,7 @@ scan:current:ubuntu:
 
 scan:prev:ubuntu:
   needs:
-    - build:prev:ubuntu
+    - containerize:prev:ubuntu
   stage: scan
   extends: .container_scanning
   variables:
@@ -196,7 +362,7 @@ scan:prev:ubuntu:
 
 scan:current:debian:
   needs:
-    - build:current:debian
+    - containerize:current:debian
   stage: scan
   extends: .container_scanning
   variables:
@@ -205,7 +371,7 @@ scan:current:debian:
 
 scan:prev:debian:
   needs:
-    - build:prev:debian
+    - containerize:prev:debian
   stage: scan
   extends: .container_scanning
   variables:
@@ -214,7 +380,7 @@ scan:prev:debian:
 
 scan:current:alpine:
   needs:
-    - build:current:alpine
+    - containerize:current:alpine
   stage: scan
   extends: .container_scanning
   variables:
@@ -223,7 +389,7 @@ scan:current:alpine:
 
 scan:prev:alpine:
   needs:
-    - build:prev:alpine
+    - containerize:prev:alpine
   extends: .container_scanning
   variables:
     SCANNING_IMAGE_NAME: "${CI_REGISTRY_IMAGE}:prev"

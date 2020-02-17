@@ -1,21 +1,3 @@
-FROM registry.gitlab.com/jitesoft/dockerfiles/go/bootstrap/debian AS stage0-build
-ARG VERSION
-ARG TARGETARCH
-ARG TARGETPLATFORM
-
-ENV GOOS="linux" \
-    GOARCH="${TARGETARCH}"
-
-COPY ./go${VERSION}.src.tar.gz /tmp/go.tar.gz
-
-RUN apt-get update \
- && apt-get install -y git gcc openssl ca-certificates \
- && tar -C /usr/local -xzf /tmp/go.tar.gz \
- && rm -f /tmp/go.tar.gz \
- && cd /usr/local/go/src \
- && ./make.bash \
- && rm -rf /usr/local/go/pkg/bootstrap /usr/local/go/pkg/obj
-
 FROM registry.gitlab.com/jitesoft/dockerfiles/debian:stable-slim
 ARG VERSION
 LABEL maintainer="Johannes Tegnér <johannes@jitesoft.com>" \
@@ -33,13 +15,13 @@ ENV PATH="/usr/local/go/bin:$PATH" \
     GOOS="linux" \
     GOARCH="${TARGETARCH}"
 
-COPY --from=stage0-build /usr/local/go /usr/local/go
-
-RUN apt-get update \
+RUN --mount=type=bind,source=./bin,target=/tmp/bin \
+    tar -xzhf /tmp/bin/go-${GOARCH}.tar.gz -C /usr/local/go \
+ && apt-get update \
  && apt-get install -y git openssl ca-certificates \
  && mkdir -p "${GOPATH}/src" "${GOPATH}/bin" \
- && chmod -R 777 ${GOPATH} \
- && go version \
- && apt-get clean
+ && chmod -R 774 ${GOPATH} \
+ && apt-get clean \
+ && go version
 
 WORKDIR /go

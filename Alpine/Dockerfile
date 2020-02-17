@@ -1,19 +1,3 @@
-FROM registry.gitlab.com/jitesoft/dockerfiles/go/bootstrap:alpine AS stage0-build
-ARG VERSION
-ARG TARGETARCH
-
-ENV GOOS="linux" \
-    GOARCH="${TARGETARCH}"
-
-COPY ./go${VERSION}.src.tar.gz /tmp/go.tar.gz
-
-RUN apk add --no-cache --virtual .build git bash gcc musl-dev openssl ca-certificates \
- && tar -C /usr/local -xzf /tmp/go.tar.gz \
- && rm -f /tmp/go.tar.gz \
- && cd /usr/local/go/src \
- && ./make.bash \
- && rm -rf /usr/local/go/pkg/bootstrap /usr/local/go/pkg/obj
-
 FROM registry.gitlab.com/jitesoft/dockerfiles/alpine:latest
 ARG VERSION
 LABEL maintainer="Johannes Tegnér <johannes@jitesoft.com>" \
@@ -31,11 +15,11 @@ ENV PATH="/usr/local/go/bin:$PATH" \
     GOOS="linux" \
     GOARCH="${TARGETARCH}"
 
-COPY --from=stage0-build /usr/local/go /usr/local/go
-
-RUN apk add --no-cache git openssl ca-certificates  \
+RUN --mount=type=bind,source=./bin,target=/tmp/bin \
+    tar -xzhf /tmp/bin/go-${GOARCH}.tar.gz -C /usr/local/go \
+ && apk add --no-cache git openssl ca-certificates \
  && mkdir -p "${GOPATH}/src" "${GOPATH}/bin" \
- && chmod -R 777 ${GOPATH} \
+ && chmod -R 774 ${GOPATH} \
  && [ ! -e /etc/nsswitch.conf ] && echo 'hosts: files dns' > /etc/nsswitch.conf \
  && go version
 
