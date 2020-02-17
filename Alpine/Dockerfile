@@ -1,3 +1,4 @@
+# syntax = docker/dockerfile:experimental
 FROM registry.gitlab.com/jitesoft/dockerfiles/alpine:latest
 ARG VERSION
 LABEL maintainer="Johannes Tegnér <johannes@jitesoft.com>" \

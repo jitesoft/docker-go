@@ -1,3 +1,4 @@
+# syntax = docker/dockerfile:experimental
 FROM registry.gitlab.com/jitesoft/dockerfiles/debian:stable-slim
 ARG VERSION
 LABEL maintainer="Johannes Tegnér <johannes@jitesoft.com>" \
