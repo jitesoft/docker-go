@@ -44,6 +44,7 @@ build:debianish:amd:
   dependencies:
     - download:bootstrap
   variables:
+    GIT_STRATEGY: none
     GOOS: linux
     GOARCH: amd64
     CGO_ENABLED: 0
@@ -75,13 +76,13 @@ build:debianish:amd:
   tags:
     - native-amd64
 
-
 build:debianish:arm:
   stage: build
   image: registry.gitlab.com/jitesoft/dockerfiles/debian:latest
   dependencies:
     - download:bootstrap
   variables:
+    GIT_STRATEGY: none
     GOOS: linux
     GOARCH: arm64
     CGO_ENABLED: 0
