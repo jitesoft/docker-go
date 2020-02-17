@@ -72,8 +72,8 @@ download:src:
         FILE=$(cat sha256sum.txt | awk '{print $2}' | head -1)
         VERSION=$(echo ${FILE} | grep -oP '([0-9]{0,3}[.][0-9]{0,3}([.][0-9]{0,3})?)(?=.src.tar.gz)')
       else
-        - FILE=$(cat sha256sum.txt | awk '{print $2}' | tail -1)
-        - VERSION=$(echo ${FILE} | grep -oP '([0-9]{0,3}[.][0-9]{0,3}([.][0-9]{0,3})?)(?=.src.tar.gz)')
+        FILE=$(cat sha256sum.txt | awk '{print $2}' | tail -1)
+        VERSION=$(echo ${FILE} | grep -oP '([0-9]{0,3}[.][0-9]{0,3}([.][0-9]{0,3})?)(?=.src.tar.gz)')
       fi
     - echo "${TYPE} ${VERSION}"
     - mkdir /opt/src
