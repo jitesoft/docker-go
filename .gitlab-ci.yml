@@ -55,7 +55,7 @@ build:debianish:amd:
     - tar -zxf go1.4-bootstrap-20171003.tar.gz -C /tmp
     - mkdir -p /opt/bootstrap
     - mv /tmp/go /opt/bootstrap
-    - tar -xzf /tmp/go1.11.src.tar.gz -C /usr/local
+    - tar -xzf go1.11.src.tar.gz -C /usr/local
   script:
     - cd /opt/bootstrap/src
     - chmod +x make.bash
@@ -93,7 +93,7 @@ build:debianish:arm:
     - tar -zxf go1.4-bootstrap-20171003.tar.gz -C /tmp
     - mkdir -p /opt/bootstrap
     - mv /tmp/go /opt/bootstrap
-    - tar -xzf /tmp/go1.11.src.tar.gz -C /usr/local
+    - tar -xzf go1.11.src.tar.gz -C /usr/local
   script:
     - cd /opt/bootstrap/src
     - chmod +x make.bash
