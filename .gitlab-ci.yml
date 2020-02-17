@@ -45,13 +45,13 @@ download:bootstrap:
   stage: build
   needs:
     - download:bootstrap
-  script:
+  script: # Build on AMD first to allow for building bootstrap for aarch 64...
     - cd /opt/bootstrap/src
     - chmod +x make.bash
-    - GOARCH="${ARCH}" ./make.bash
+    - ./make.bash
     - cd /usr/local/go/src
     - chmod +x make.bash
-    - GOARCH="${ARCH}" ./make.bash --no-clean
+    - ./make.bash --no-clean
     - export GOROOT_BOOTSTRAP=/usr/local/go
     - export PATH="/usr/local/go/bin:$PATH"
     - chmod +x bootstrap.bash
@@ -102,7 +102,7 @@ build:alpine:arm:
   after_script:
     - cp /usr/local/go-linux-arm64-bootstrap.tbz ${CI_PROJECT_DIR}/bootstrap.tbz
   tags:
-    - native-aarch64
+    - native-amd64
 
 build:debianish:amd:
   extends: .build:debianish
@@ -122,4 +122,4 @@ build:debianish:arm:
   after_script:
     - cp /usr/local/go-linux-arm64-bootstrap.tbz ${CI_PROJECT_DIR}/bootstrap.tbz
   tags:
-    - native-aarch64
+    - native-amd64
