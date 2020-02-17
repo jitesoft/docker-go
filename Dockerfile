@@ -20,5 +20,7 @@ ENV CGO_ENABLED=0 \
     PATH="/usr/local/bootstrap/bin:$PATH"
 
 RUN mkdir /usr/local/bootstrap \
- && --mount=type=bind,source=/bin,target=/tmp/bin \
-    tar -xhjf /tmp/bin/bootstrap-${GOARCH}.tbz -C /usr/local/bootstrap --strip-components=1
+ && if [ "${IMAGE}" != "alpine" ]; then apt-get update; apt-get install -y bzip2; fi
+RUN --mount=type=bind,source=/bin,target=/tmp/bin \
+    tar -xhjf /tmp/bin/bootstrap-${GOARCH}.tbz -C /usr/local/bootstrap --strip-components=1 \
+ && if [ "${IMAGE}" != "alpine" ]; then apt-get purge -y bzip2; apt-get clean; fi
