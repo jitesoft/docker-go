@@ -132,6 +132,9 @@ build:debianish:arm:
     - mv bootstrap-arm64.tbz bin/
     - mv bootstrap-amd64.tbz bin/
     - docker buildx build --platform linux/amd64,linux/arm64 --push -t ${CI_REGISTRY_IMAGE}/bootstrap:${IMAGE} --progress plain --build-arg TAG=${TAG} --build-arg IMAGE=${IMAGE} .
+  only:
+    refs:
+      - bootstrap
 
 containerize:ubuntu:
   extends: .containerize
@@ -149,7 +152,7 @@ containerize:debian:
     - build:debianish:amd
   variables:
     IMAGE: debian
-    TAG: stretch-slim
+    TAG: stable-slim
 
 containerize:alpine:
   extends: .containerize
