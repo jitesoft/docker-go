@@ -59,7 +59,7 @@ download:bootstrap:
     - cd ${CI_PROJECT_DIR}
   artifacts:
     paths:
-      - bootstrap.tbz
+      - bootstrap-*.tbz
     expire_in: 1 days
   only:
     refs:
@@ -90,7 +90,7 @@ build:alpine:amd:
     GIT_STRATEGY: none
     ARCH: amd64
   after_script:
-    - cp /usr/local/go-linux-amd64-bootstrap.tbz ${CI_PROJECT_DIR}/bootstrap.tbz
+    - cp /usr/local/go-linux-amd64-bootstrap.tbz ${CI_PROJECT_DIR}/bootstrap-amd64.tbz
   tags:
     - native-amd64
 
@@ -100,7 +100,7 @@ build:alpine:arm:
     GIT_STRATEGY: none
     ARCH: arm64
   after_script:
-    - cp /usr/local/go-linux-arm64-bootstrap.tbz ${CI_PROJECT_DIR}/bootstrap.tbz
+    - cp /usr/local/go-linux-arm64-bootstrap.tbz ${CI_PROJECT_DIR}/bootstrap-arm64.tbz
   tags:
     - native-amd64
 
@@ -110,7 +110,7 @@ build:debianish:amd:
     GIT_STRATEGY: none
     ARCH: amd64
   after_script:
-    - cp /usr/local/go-linux-amd64-bootstrap.tbz ${CI_PROJECT_DIR}/bootstrap.tbz
+    - cp /usr/local/go-linux-amd64-bootstrap.tbz ${CI_PROJECT_DIR}/bootstrap-amd64.tbz
   tags:
     - native-amd64
 
@@ -120,6 +120,33 @@ build:debianish:arm:
     GIT_STRATEGY: none
     ARCH: arm64
   after_script:
-    - cp /usr/local/go-linux-arm64-bootstrap.tbz ${CI_PROJECT_DIR}/bootstrap.tbz
+    - cp /usr/local/go-linux-arm64-bootstrap.tbz ${CI_PROJECT_DIR}/bootstrap-arm64.tbz
   tags:
     - native-amd64
+
+.containerize:
+  stage: containerize
+  image: registry.gitlab.com/jitesoft/dockerfiles/misc
+  script:
+    - mkdir bin
+    - mv bootstrap-arm64.tbz bin/
+    - mv bootstrap-amd64.tbz bin/
+    - docker buildx build --platform linux/amd64,linux/arm64 --push --t ${CI_REGISTRY_IMAGE}/bootstrap:${TYPE} --progress plain --build-arg TAG=${TAG} --build-arg IMAGE=${IMAGE} .
+
+containerize:ubuntu:
+  extends: .containerize
+  variables:
+    IMAGE: ubuntu
+    TAG: bionic
+
+containerize:debian:
+  extends: .containerize
+  variables:
+    IMAGE: debian
+    TAG: stretch-slim
+
+containerize:alpine:
+  extends: .containerize
+  variables:
+    IMAGE: alpine
+    TAG: latest
