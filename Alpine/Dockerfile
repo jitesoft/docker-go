@@ -17,7 +17,7 @@ ENV PATH="/usr/local/go/bin:$PATH" \
     GOARCH="${TARGETARCH}"
 
 RUN --mount=type=bind,source=./bin,target=/tmp/bin \
-    tar -xzhf /tmp/bin/go-${GOARCH}.tar.gz -C /usr/local/go \
+    tar -xzhf /tmp/bin/go-${GOARCH}.tar.gz -C /usr/local/ \
  && apk add --no-cache git openssl ca-certificates \
  && mkdir -p "${GOPATH}/src" "${GOPATH}/bin" \
  && chmod -R 774 ${GOPATH} \

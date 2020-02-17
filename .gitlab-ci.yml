@@ -81,8 +81,10 @@ download:src:
     - ./make.bash
     - cd ${CI_PROJECT_DIR}
     - rm -rf go/pkg/obj
+    - rm -rf go/pkg/bootstrap
+    - rm -rf go/doc
   after_script:
-    - $(cd go/ && tar -czf ${CI_PROJECT_DIR}/go-${ARCH}.tar.gz *)
+    - tar -czf ${CI_PROJECT_DIR}/go-${ARCH}.tar.gz go/
   artifacts:
     paths:
       - go-${ARCH}.tar.gz
