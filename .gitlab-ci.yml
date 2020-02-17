@@ -1,10 +1,10 @@
 stages:
   - download
   - build
+  - containerize
 
 variables:
-  DOCKER_BUILDKIT: 1
-  ARCHITECTURES: "linux/amd64,linux/arm64,linux/ppc64le,linux/s390x,linux/386"
+  ARCHITECTURES: "linux/amd64,linux/arm64"
 
 
 ########################################################################################################################
@@ -38,76 +38,115 @@ download:bootstrap:
     refs:
       - bootstrap
 
-build:debianish:amd:
+.build:debianish:
   stage: build
-  image: registry.gitlab.com/jitesoft/dockerfiles/debian:latest
-  dependencies:
+  image: registry.gitlab.com/jitesoft/dockerfiles/ubuntu:bionic
+  needs:
     - download:bootstrap
+  before_script:
+    - apt-get update
+    - apt-get install -y gcc openssl tar ca-certificates bzip2
+    - tar -zxf go1.4-bootstrap-20171003.tar.gz -C /tmp
+    - mv /tmp/go /opt/bootstrap
+    - tar -xzf go1.11.src.tar.gz -C /usr/local
+  script:
+    - cd /opt/bootstrap/src
+    - chmod +x make.bash
+    - ./make.bash
+    - cd /usr/local/go/src
+    - chmod +x make.bash
+    - ./make.bash --no-clean
+    - export GOROOT_BOOTSTRAP=/usr/local/go
+    - export PATH="/usr/local/go/bin:$PATH"
+    - chmod +x bootstrap.bash
+    - ./bootstrap.bash
+    - cd ${CI_PROJECT_DIR}
+  artifacts:
+    paths:
+      - bootstrap.tbz
+    expire_in: 1 days
+  only:
+    refs:
+      - bootstrap
+
+.build:alpine:
+  stage: build
+  image: registry.gitlab.com/jitesoft/dockerfiles/misc:buildbase
+  needs:
+    - download:bootstrap
+  before_script:
+    - apk add --no-cache -y gcc musl-dev openssl tar ca-certificates bash bzip2
+    - tar -zxf go1.4-bootstrap-20171003.tar.gz -C /tmp
+    - mv /tmp/go /opt/bootstrap
+    - tar -xzf go1.11.src.tar.gz -C /usr/local
+  script:
+    - cd /opt/bootstrap/src
+    - chmod +x make.bash
+    - ./make.bash
+    - cd /usr/local/go/src
+    - chmod +x make.bash
+    - ./make.bash --no-clean
+    - export GOROOT_BOOTSTRAP=/usr/local/go
+    - export PATH="/usr/local/go/bin:$PATH"
+    - chmod +x bootstrap.bash
+    - ./bootstrap.bash
+    - cd ${CI_PROJECT_DIR}
+  artifacts:
+    paths:
+      - bootstrap.tbz
+    expire_in: 1 days
+  only:
+    refs:
+      - bootstrap
+
+build:alpine:amd:
+  extends: .build:alpine
   variables:
     GIT_STRATEGY: none
     GOOS: linux
     GOARCH: amd64
     CGO_ENABLED: 0
     GOROOT_BOOTSTRAP: /opt/bootstrap
-  before_script:
-    - apt-get update
-    - apt-get install -y gcc openssl tar ca-certificates
-    - tar -zxf go1.4-bootstrap-20171003.tar.gz -C /tmp
-    - mv /tmp/go /opt/bootstrap
-    - tar -xzf go1.11.src.tar.gz -C /usr/local
-  script:
-    - cd /opt/bootstrap/src
-    - chmod +x make.bash
-    - ./make.bash
-    - cd /usr/local/go/src
-    - chmod +x make.bash
-    - ./make.bash --no-clean
-    - export GOROOT_BOOTSTRAP=/usr/local/go
-    - export PATH="/usr/local/go/bin:$PATH"
-    - chmod +x bootstrap.bash
-    - ./bootstrap.bash
-    - cd ${CI_PROJECT_DIR}
+  after_script:
     - cp /usr/local/go-linux-amd64-bootstrap.tbz ${CI_PROJECT_DIR}/bootstrap.tbz
-  artifacts:
-    paths:
-      - bootstrap.tbz
-    expire_in: 30 days
   tags:
     - native-amd64
 
-build:debianish:arm:
-  stage: build
-  image: registry.gitlab.com/jitesoft/dockerfiles/debian:latest
-  dependencies:
-    - download:bootstrap
+build:alpine:arm:
+  extends: .build:alpine
   variables:
     GIT_STRATEGY: none
     GOOS: linux
     GOARCH: arm64
     CGO_ENABLED: 0
     GOROOT_BOOTSTRAP: /opt/bootstrap
-  before_script:
-    - apt-get update
-    - apt-get install -y gcc openssl tar ca-certificates
-    - tar -zxf go1.4-bootstrap-20171003.tar.gz -C /tmp
-    - mv /tmp/go /opt/bootstrap
-    - tar -xzf go1.11.src.tar.gz -C /usr/local
-  script:
-    - cd /opt/bootstrap/src
-    - chmod +x make.bash
-    - ./make.bash
-    - cd /usr/local/go/src
-    - chmod +x make.bash
-    - ./make.bash --no-clean
-    - export GOROOT_BOOTSTRAP=/usr/local/go
-    - export PATH="/usr/local/go/bin:$PATH"
-    - chmod +x bootstrap.bash
-    - ./bootstrap.bash
-    - cd ${CI_PROJECT_DIR}
+  after_script:
     - cp /usr/local/go-linux-arm64-bootstrap.tbz ${CI_PROJECT_DIR}/bootstrap.tbz
-  artifacts:
-    paths:
-      - bootstrap.tbz
-    expire_in: 30 days
+  tags:
+    - native-aarch64
+
+build:debianish:amd:
+  extends: .build:debianish
+  variables:
+    GIT_STRATEGY: none
+    GOOS: linux
+    GOARCH: amd64
+    CGO_ENABLED: 0
+    GOROOT_BOOTSTRAP: /opt/bootstrap
+  after_script:
+    - cp /usr/local/go-linux-amd64-bootstrap.tbz ${CI_PROJECT_DIR}/bootstrap.tbz
+  tags:
+    - native-amd64
+
+build:debianish:arm:
+  extends: .build:debianish
+  variables:
+    GIT_STRATEGY: none
+    GOOS: linux
+    GOARCH: arm64
+    CGO_ENABLED: 0
+    GOROOT_BOOTSTRAP: /opt/bootstrap
+  after_script:
+    - cp /usr/local/go-linux-arm64-bootstrap.tbz ${CI_PROJECT_DIR}/bootstrap.tbz
   tags:
     - native-aarch64
