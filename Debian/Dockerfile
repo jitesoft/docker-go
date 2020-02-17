@@ -1,4 +1,4 @@
-FROM registry.gitlab.com/jitesoft/dockerfiles/go/ubuntu:bootstrap AS stage0-build
+FROM registry.gitlab.com/jitesoft/dockerfiles/go/bootstrap/debian AS stage0-build
 ARG VERSION
 ARG TARGETARCH
 ARG TARGETPLATFORM
@@ -16,7 +16,7 @@ RUN apt-get update \
  && ./make.bash \
  && rm -rf /usr/local/go/pkg/bootstrap /usr/local/go/pkg/obj
 
-FROM registry.gitlab.com/jitesoft/dockerfiles/debian:buster-slim
+FROM registry.gitlab.com/jitesoft/dockerfiles/debian:stable-slim
 ARG VERSION
 LABEL maintainer="Johannes Tegnér <johannes@jitesoft.com>" \
       maintainer.org="Jitesoft" \

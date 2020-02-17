@@ -1,4 +1,4 @@
-FROM registry.gitlab.com/jitesoft/dockerfiles/go/ubuntu:bootstrap AS stage0-build
+FROM registry.gitlab.com/jitesoft/dockerfiles/go/bootstrap:ubuntu AS stage0-build
 ARG VERSION
 ARG TARGETARCH
 ARG TARGETPLATFORM

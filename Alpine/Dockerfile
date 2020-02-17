@@ -1,6 +1,5 @@
-FROM registry.gitlab.com/jitesoft/dockerfiles/go:bootstrap AS stage0-build
+FROM registry.gitlab.com/jitesoft/dockerfiles/go/bootstrap:alpine AS stage0-build
 ARG VERSION
-ARG TARGETPLATFORM
 ARG TARGETARCH
 
 ENV GOOS="linux" \

@@ -60,6 +60,8 @@ download:src:
     refs:
       - master
 
+# TODO: Rewrite build to actually build src. Containerize copies from disk not stage0.
+
 .build:alpine:
   dependencies:
     - download:src
