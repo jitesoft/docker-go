@@ -19,7 +19,6 @@ ENV CGO_ENABLED=0 \
     GOROOT_BOOTSTRAP="/usr/local/bootstrap" \
     PATH="/usr/local/bootstrap/bin:$PATH"
 
-RUN if [ "${IMAGE}" = "debian" ]; then apt-get install bzip2; fi \
- && mkdir /usr/local/bootstrap \
+RUN mkdir /usr/local/bootstrap \
  && --mount=type=bind,source=/bin,target=/tmp/bin \
     tar -xhjf /tmp/bin/bootstrap-${GOARCH}.tbz -C /usr/local/bootstrap --strip-components=1
