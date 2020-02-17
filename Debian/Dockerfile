@@ -16,7 +16,7 @@ RUN apt-get update \
  && ./make.bash \
  && rm -rf /usr/local/go/pkg/bootstrap /usr/local/go/pkg/obj
 
-FROM registry.gitlab.com/jitesoft/dockerfiles/debian:buster
+FROM registry.gitlab.com/jitesoft/dockerfiles/debian:buster-slim
 ARG VERSION
 LABEL maintainer="Johannes Tegnér <johannes@jitesoft.com>" \
       maintainer.org="Jitesoft" \
