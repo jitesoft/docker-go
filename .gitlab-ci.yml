@@ -82,7 +82,7 @@ download:src:
     - cd ${CI_PROJECT_DIR}
     - rm -rf go/pkg/obj
   after_script:
-    - $(cd go/ && tar -czf go-${ARCH}.tar.gz *)
+    - $(cd go/ && tar -czf ${CI_PROJECT_DIR}/go-${ARCH}.tar.gz *)
   artifacts:
     paths:
       - go-${ARCH}.tar.gz
