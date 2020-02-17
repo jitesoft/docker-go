@@ -76,14 +76,13 @@ download:src:
         VERSION=$(echo ${FILE} | grep -oP '([0-9]{0,3}[.][0-9]{0,3}([.][0-9]{0,3})?)(?=.src.tar.gz)')
       fi
     - echo "${TYPE} ${VERSION}"
-    - mkdir /opt/src
     - tar -xzhf go${VERSION}.src.tar.gz
     - cd go/src
     - ./make.bash
-    - rm -rf /usr/local/go/pkg/bootstrap
-    - rm -rf /usr/local/go/pkg/obj
+    - cd ${CI_PROJECT_DIR}
+    - rm -rf go/pkg/obj
   after_script:
-    - $(cd /usr/local/go && tar -czf go-${ARCH}.tar.gz *)
+    - $(cd go/ && tar -czf go-${ARCH}.tar.gz *)
   artifacts:
     paths:
       - go-${ARCH}.tar.gz
