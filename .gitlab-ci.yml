@@ -145,6 +145,26 @@ build:alpine:arm:prev:
   tags:
     - native-aarch64
 
+build:alpine:arm7:prev:
+  extends: .build:alpine
+  variables:
+    ARCH: arm
+    GOARCH: arm
+    GOARM: 7
+    TYPE: prev
+  tags:
+    - native-amd64
+
+build:alpine:arm7:latest:
+  extends: .build:alpine
+  variables:
+    ARCH: arm
+    GOARCH: arm
+    GOARM: 7
+    TYPE: latest
+  tags:
+    - native-amd64
+
 build:ubuntu:amd:latest:
   extends: .build:ubuntu
   variables:
@@ -177,6 +197,26 @@ build:ubuntu:arm:prev:
   tags:
     - native-aarch64
 
+build:ubuntu:arm7:prev:
+  extends: .build:ubuntu
+  variables:
+    ARCH: arm
+    GOARCH: arm
+    GOARM: 7
+    TYPE: prev
+  tags:
+    - native-aarch64
+
+build:ubuntu:arm7:latest:
+  extends: .build:ubuntu
+  variables:
+    ARCH: arm
+    GOARCH: arm
+    GOARM: 7
+    TYPE: latest
+  tags:
+    - native-aarch64
+
 build:debian:amd:latest:
   extends: .build:debian
   variables:
@@ -205,6 +245,26 @@ build:debian:arm:prev:
   extends: .build:debian
   variables:
     ARCH: arm64
+    TYPE: prev
+  tags:
+    - native-aarch64
+
+build:debian:arm7:latest:
+  extends: .build:debian
+  variables:
+    ARCH: arm64
+    GOARCH: arm
+    GOARM: 7
+    TYPE: latest
+  tags:
+    - native-aarch64
+
+build:debian:arm7:prev:
+  extends: .build:debian
+  variables:
+    ARCH: arm64
+    GOARCH: arm
+    GOARM: 7
     TYPE: prev
   tags:
     - native-aarch64
