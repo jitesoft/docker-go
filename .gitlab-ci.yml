@@ -2,7 +2,7 @@ include:
   - https://gitlab.com/jitesoft/gitlab-ci-lib/raw/master/container_scan-v2.yml
 
 variables:
-  ARCHITECTURES: "linux/amd64,linux/arm64"
+  ARCHITECTURES: "linux/amd64,linux/arm64,linux/arm/v7"
 
 stages:
   - pre
@@ -205,7 +205,7 @@ build:ubuntu:arm7:prev:
     GOARM: 7
     TYPE: prev
   tags:
-    - native-aarch64
+    - native-amd64
 
 build:ubuntu:arm7:latest:
   extends: .build:ubuntu
@@ -215,7 +215,7 @@ build:ubuntu:arm7:latest:
     GOARM: 7
     TYPE: latest
   tags:
-    - native-aarch64
+    - native-amd64
 
 build:debian:amd:latest:
   extends: .build:debian
@@ -257,7 +257,7 @@ build:debian:arm7:latest:
     GOARM: 7
     TYPE: latest
   tags:
-    - native-aarch64
+    - native-amd64
 
 build:debian:arm7:prev:
   extends: .build:debian
@@ -267,7 +267,7 @@ build:debian:arm7:prev:
     GOARM: 7
     TYPE: prev
   tags:
-    - native-aarch64
+    - native-amd64
 
 .containerize:alpine:
   stage: containerize
@@ -323,6 +323,7 @@ containerize:current:ubuntu:
   stage: containerize
   needs:
     - build:ubuntu:arm:latest
+    - build:ubuntu:arm7:latest
     - build:ubuntu:amd:latest
     - download:versions
   variables:
@@ -337,6 +338,7 @@ containerize:prev:ubuntu:
   stage: containerize
   needs:
     - build:ubuntu:arm:prev
+    - build:ubuntu:arm7:prev
     - build:ubuntu:amd:prev
     - download:versions
   variables:
@@ -351,6 +353,7 @@ containerize:current:debian:
   stage: containerize
   needs:
     - build:debian:arm:latest
+    - build:debian:arm7:latest
     - build:debian:amd:latest
     - download:versions
   variables:
@@ -365,6 +368,7 @@ containerize:prev:debian:
   stage: containerize
   needs:
     - build:debian:arm:prev
+    - build:debian:arm7:prev
     - build:debian:amd:prev
     - download:versions
   variables:
@@ -379,6 +383,7 @@ containerize:current:alpine:
   stage: containerize
   needs:
     - build:alpine:arm:latest
+    - build:alpine:arm7:latest
     - build:alpine:amd:latest
     - download:versions
   variables:
@@ -392,6 +397,7 @@ containerize:current:alpine:
 containerize:prev:alpine:
   needs:
     - build:alpine:arm:prev
+    - build:alpine:arm7:prev
     - build:alpine:amd:prev
     - download:versions
   stage: containerize
