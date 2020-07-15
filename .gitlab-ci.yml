@@ -252,7 +252,7 @@ build:debian:arm:prev:
 build:debian:arm7:latest:
   extends: .build:debian
   variables:
-    ARCH: arm64
+    ARCH: arm
     GOARCH: arm
     GOARM: 7
     TYPE: latest
@@ -262,7 +262,7 @@ build:debian:arm7:latest:
 build:debian:arm7:prev:
   extends: .build:debian
   variables:
-    ARCH: arm64
+    ARCH: arm
     GOARCH: arm
     GOARM: 7
     TYPE: prev
