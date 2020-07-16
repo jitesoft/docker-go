@@ -152,8 +152,6 @@ build:alpine:arm7:prev:
     GOARCH: arm
     GOARM: 7
     TYPE: prev
-  tags:
-    - native-amd64
 
 build:alpine:arm7:latest:
   extends: .build:alpine
@@ -162,8 +160,6 @@ build:alpine:arm7:latest:
     GOARCH: arm
     GOARM: 7
     TYPE: latest
-  tags:
-    - native-amd64
 
 build:ubuntu:amd:latest:
   extends: .build:ubuntu
@@ -204,8 +200,6 @@ build:ubuntu:arm7:prev:
     GOARCH: arm
     GOARM: 7
     TYPE: prev
-  tags:
-    - native-amd64
 
 build:ubuntu:arm7:latest:
   extends: .build:ubuntu
@@ -214,8 +208,6 @@ build:ubuntu:arm7:latest:
     GOARCH: arm
     GOARM: 7
     TYPE: latest
-  tags:
-    - native-amd64
 
 build:debian:amd:latest:
   extends: .build:debian
@@ -256,8 +248,6 @@ build:debian:arm7:latest:
     GOARCH: arm
     GOARM: 7
     TYPE: latest
-  tags:
-    - native-amd64
 
 build:debian:arm7:prev:
   extends: .build:debian
@@ -266,8 +256,6 @@ build:debian:arm7:prev:
     GOARCH: arm
     GOARM: 7
     TYPE: prev
-  tags:
-    - native-amd64
 
 .containerize:alpine:
   stage: containerize
