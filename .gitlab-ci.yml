@@ -266,7 +266,7 @@ build:debian:arm7:prev:
     - VERSION_SHORT="${VERSION}"
     - OC=$(echo ${VERSION} | awk -F"." '{print NF-1}')
     - if [ "$OC" = "2" ]; then VERSION_SHORT=$(echo ${VERSION} | cut -d'.' -f1,2); fi
-    - TAG_LIST=$(helper "${CI_REGISTRY_IMAGE},jitesoft/go", "${TAGS},${VERSION},${VERSION_SHORT}")
+    - TAG_LIST=$(helper "${CI_REGISTRY_IMAGE},jitesoft/go,ghcr.io/jitesoft/go", "${TAGS},${VERSION},${VERSION_SHORT}")
     - docker buildx build --platform ${ARCHITECTURES} --progress plain --push ${TAG_LIST} --build-arg VERSION=${VERSION} -f Alpine/Dockerfile .
   only:
     refs:
@@ -283,7 +283,7 @@ build:debian:arm7:prev:
     - OC=$(echo ${VERSION} | awk -F"." '{print NF-1}')
     - if [ "$OC" = "2" ]; then VERSION_SHORT=$(echo ${VERSION} | cut -d'.' -f1,2); fi
     - TAG_LIST=$(helper "${CI_REGISTRY_IMAGE}/ubuntu", "${TAGS},${VERSION}${VERSION_SHORT}")
-    - TAG_LIST_HUB=$(helper "jitesoft/go", "${TAGS}-ubuntu,${VERSION}-ubuntu,${VERSION_SHORT}-ubuntu")
+    - TAG_LIST_HUB=$(helper "jitesoft/go,ghcr.io/jitesoft/go", "${TAGS}-ubuntu,${VERSION}-ubuntu,${VERSION_SHORT}-ubuntu")
     - docker buildx build --platform ${ARCHITECTURES} --progress plain --push ${TAG_LIST} ${TAG_LIST_HUB} --build-arg VERSION=${VERSION} -f Ubuntu/Dockerfile .
   only:
     refs:
@@ -300,7 +300,7 @@ build:debian:arm7:prev:
     - OC=$(echo ${VERSION} | awk -F"." '{print NF-1}')
     - if [ "$OC" = "2" ]; then VERSION_SHORT=$(echo ${VERSION} | cut -d'.' -f1,2); fi
     - TAG_LIST=$(helper "${CI_REGISTRY_IMAGE}/debian", "${TAGS},${VERSION}${VERSION_SHORT}")
-    - TAG_LIST_HUB=$(helper "jitesoft/go", "${TAGS}-debian,${VERSION}-debian,${VERSION_SHORT}-debian")
+    - TAG_LIST_HUB=$(helper "jitesoft/go,ghcr.io/jitesoft/go", "${TAGS}-debian,${VERSION}-debian,${VERSION_SHORT}-debian")
     - docker buildx build --platform ${ARCHITECTURES} --progress plain --push ${TAG_LIST} ${TAG_LIST_HUB} --build-arg VERSION=${VERSION} -f Debian/Dockerfile .
   only:
     refs:
