@@ -1,7 +1,6 @@
 # Go
 
 [![Docker Pulls](https://img.shields.io/docker/pulls/jitesoft/go.svg)](https://cloud.docker.com/u/jitesoft/repository/docker/jitesoft/go)
-[![pipeline status](https://gitlab.com/jitesoft/dockerfiles/go/badges/master/pipeline.svg)](https://gitlab.com/jitesoft/dockerfiles/go/commits/master)
 [![Back project](https://img.shields.io/badge/Open%20Collective-Tip%20the%20devs!-blue.svg)](https://opencollective.com/jitesoft-open-source)
 
 Docker image containing [Go](https://golang.org/).  
@@ -9,34 +8,21 @@ This image contains nothing but go and is intended as a base image to derive fro
 This means that the user running go is currently a root user. Make sure you create a new user when deriving from the
 image so that your user does not run as root if not actually required.
 
-## Tags
+## Image/Tags
 
-Docker Hub and GitLab images are built for amd64 and arm64.
+Docker Hub and GitLab images are built for amd64, arm64 and arm/v7.
 
-### Docker Hub
+Each image is tagged with the version number and their respective distro separated with `-` (check tags for more information) while the non-distro tagged images are based on Alpine linux.
 
-* `jitesoft/go`
-    * `1.13`, `latest` (alpine)
-    * `1.13-ubunntu`, `latest-ubuntu`
-    * `1.13-debian`, `latest-debian`
+Images can be found at:
 
-### GitLab
-
-* `registry.gitlab.com/jitesoft/dockerfiles/go`
-    * `1.13`, `latest`
-    * `bootstrap` (go 1.11 for bootstrap compilation) 
-* `registry.gitlab.com/jitesoft/dockerfiles/go/ubuntu`
-    * `1.13`, `latest`
-    * `bootstrap` (go 1.11 for bootstrap compilation) 
-* `registry.gitlab.com/jitesoft/dockerfiles/go/debian`
-    * `1.13`, `latest`
-  
-### Quay.io
-
-* `quay.io/jitesoft/go`
-    * `1.13`, `latest`
-    * `1.13-ubuntu`, `latest-ubuntu`
-    * `1.13-debian`, `latest-debian`
+* Docker hub: `jitesoft/go`  
+* GitLab: 
+    * `registry.gitlab.com/jitesoft/dockerfiles/go`
+    * `registry.gitlab.com/jitesoft/dockerfiles/go/ubuntu`
+    * `registry.gitlab.com/jitesoft/dockerfiles/go/debian`
+* Quay.io: `quay.io/jitesoft/go`
+* GitHub: `ghcr.io/jitesoft/go`
 
 ## Docker files
 
