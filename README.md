@@ -16,13 +16,13 @@ Each image is tagged with the version number and their respective distro separat
 
 Images can be found at:
 
-* Docker hub: `jitesoft/go`  
-* GitLab: 
+* [Docker hub](https://hub.docker.com/r/jitesoft/go): `jitesoft/go`  
+* [GitLab](https://gitlab.com/jitesoft/dockerfiles/go): 
     * `registry.gitlab.com/jitesoft/dockerfiles/go`
     * `registry.gitlab.com/jitesoft/dockerfiles/go/ubuntu`
     * `registry.gitlab.com/jitesoft/dockerfiles/go/debian`
-* Quay.io: `quay.io/jitesoft/go`
-* GitHub: `ghcr.io/jitesoft/go`
+* [Quay.io](https://quay.io/jitesoft/go): `quay.io/jitesoft/go`
+* [GitHub](https://github.com/orgs/jitesoft/packages/container/package/go): `ghcr.io/jitesoft/go`
 
 ## Docker files
 
@@ -36,3 +36,24 @@ This image follows the [Jitesoft image label specification 1.0.0](https://gitlab
 
 Repository files are released under the MIT license.  
 Read the Go license [here](https://github.com/golang/go/blob/master/LICENSE).
+
+## Sponsors
+
+Sponsoring is vital for the further development and maintaining of open source projects.  
+Questions and sponsoring queries can be made via <a href="mailto:sponsor@jitesoft.com">email</a>.  
+If you wish to sponsor our projects, reach out to the email above or visit any of the following sites:
+
+[Open Collective](https://opencollective.com/jitesoft-open-source)  
+[GitHub Sponsors](https://github.com/sponsors/jitesoft)  
+[Patreon](https://www.patreon.com/jitesoft)
+
+Jitesoft images are built via GitLab CI on runners hosted by the following wonderful organisations:
+
+<a href="https://www.linaro.org/">
+  <img src="https://raw.githubusercontent.com/jitesoft/misc/master/sponsors/linaro.png" width="256" alt="Linaro logo" />
+</a>
+<a href="https://fosshost.org/">
+  <img src="https://raw.githubusercontent.com/jitesoft/misc/master/sponsors/fosshost.png" width="256" alt="Fosshost logo" />
+</a>
+
+_The companies above are not affiliated with Jitesoft or any Jitesoft Projects directly._
