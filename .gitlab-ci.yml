@@ -1,8 +1,13 @@
 include:
   - https://gitlab.com/jitesoft/gitlab-ci-lib/raw/master/Scan/trivy.yml
 
-variables:
-  ARCHITECTURES: "linux/amd64,linux/arm64,linux/arm/v7"
+workflow:
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+      when: always
+    - if: '$CI_PIPELINE_SOURCE == "web"'
+      when: always
+    - when: never
 
 check:
   stage: .pre
@@ -34,12 +39,6 @@ check:
     paths:
       - ${VERSION}.txt
     policy: pull
-  rules:
-    - if: '$CI_PIPELINE_SOURCE == "schedule"'
-      when: always
-    - if: '$CI_PIPELINE_SOURCE == "web"'
-      when: always
-    - when: never
 
 download:
   stage: .pre
@@ -59,14 +58,14 @@ download:
       - go${VERSION}.src.tar.gz
     expire_in: 1 day
   rules:
-    - if: "$BUILD"
+    - if: '$BUILD == "true"'
       when: always
     - when: never
 
 build:
   stage: build
   rules:
-    - if: "$BUILD"
+    - if: '$BUILD == "true"'
       when: always
     - when: never
   parallel:
@@ -88,7 +87,7 @@ scan:
   stage: .post
   extends: .container_scanning
   rules:
-    - if: '$SCAN'
+    - if: '$SCAN == "true"'
       when: always
     - when: never
   variables:
