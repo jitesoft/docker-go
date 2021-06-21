@@ -1,6 +1,12 @@
 include:
   - https://gitlab.com/jitesoft/gitlab-ci-lib/raw/master/Scan/trivy.yml
 
+stages:
+  - .pre
+  - download
+  - build
+  - .post
+
 workflow:
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
@@ -37,7 +43,7 @@ check:
     policy: pull
 
 download:
-  stage: .pre
+  stage: download
   image: registry.gitlab.com/jitesoft/dockerfiles/misc:latest
   variables:
     GIT_STRATEGY: none
@@ -96,7 +102,3 @@ scan:
     - if [ $OS_TYPE != ${ALPINE} ]; then TAG="/${OS_TYPE}/${VERSION}:"; fi
     - SCANNING_IMAGE_NAME="${CI_REGISTRY_IMAGE}${TAG}"
 
-stages:
-  - .pre
-  - build
-  - .post
