@@ -79,7 +79,7 @@ build:
     VERSION: "$VERSION"
     OS_TYPE: "$OS_TYPE"
   rules:
-    - if: '$BUILD'
+    - if: '$BUILD && $CI_PIPELINE_SOURCE == "trigger"'
       when: on_success
     - when: never
 
