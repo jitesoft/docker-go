@@ -63,8 +63,8 @@ build:
     - if: '$BUILD'
       when: always
     - when: never
-  needs:
-    - job: download
+  dependencies:
+    - download
   parallel:
     matrix:
       - { OS_TYPE: 'alpine' }
