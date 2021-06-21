@@ -63,7 +63,7 @@ build:
     - if: '$BUILD'
       when: always
     - when: never
-  dependencies:
+  needs:
     - download
   parallel:
     matrix:
