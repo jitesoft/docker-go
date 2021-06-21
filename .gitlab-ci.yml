@@ -3,7 +3,7 @@ include:
 
 workflow:
   rules:
-    - if: "$CI_COMMIT_BRANCH == 'master'"
+    - if: '$CI_COMMIT_BRANCH == "master"'
       when: always
     - when: never
 
@@ -56,16 +56,12 @@ download:
     expire_in: 1 day
     when: on_success
   rules:
-    - if: '$BUILD'
+    - if: '$BUILD && $CI_PIPELINE_SOURCE == "trigger"'
       when: always
     - when: never
 
 build:
   stage: build
-  rules:
-    - if: '$BUILD'
-      when: on_success
-    - when: never
   needs:
     - download
   parallel:
@@ -74,7 +70,7 @@ build:
       - { OS_TYPE: 'ubuntu' }
       - { OS_TYPE: 'debian' }
   trigger:
-    include: ".gitlab/shared.yml"
+    include: ".gitlab/build.yml"
     strategy: depend
   variables:
     PARENT_PIPELINE_ID: $CI_PIPELINE_ID
@@ -82,6 +78,10 @@ build:
     TYPE: "$V_TYPE"
     VERSION: "$VERSION"
     OS_TYPE: "$OS_TYPE"
+  rules:
+    - if: '$BUILD'
+      when: on_success
+    - when: never
 
 scan:
   stage: .post
