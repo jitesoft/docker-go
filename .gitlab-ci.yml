@@ -52,6 +52,7 @@ download:
     paths:
       - go${VERSION}.src.tar.gz
     expire_in: 1 day
+    when: on_success
   rules:
     - if: '$BUILD'
       when: always
@@ -61,7 +62,7 @@ build:
   stage: build
   rules:
     - if: '$BUILD'
-      when: always
+      when: on_success
     - when: never
   needs:
     - download
