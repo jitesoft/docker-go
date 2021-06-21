@@ -38,7 +38,6 @@ variables:
     - mkdir bin
     - mv *.tar.gz bin/
     - VERSION_SHORT=""
-    # If there is just two, then the version is the same as short.
     - if [ "$(echo ${VERSION} | awk -F"." '{print NF-1}')" = "2" ]; then VERSION_SHORT=",$(echo ${VERSION} | cut -d'.' -f1,2)"; fi
     - TAG_LIST=$(helper "jitesoft/go,ghcr.io/jitesoft/go", "${TYPE}${APPEND_TAG},${PRETAG}")
 
@@ -47,7 +46,6 @@ variables:
   stage: containerize
   image: registry.gitlab.com/jitesoft/dockerfiles/misc:latest
   script:
-    # Uppercase the first letter of os type so we get the directory in correct case.
     - DIRECTORY=$(echo $OS_TYPE | awk '{$1=toupper(substr($1,0,1))substr($1,2)}1')
     - docker buildx build --platform ${ARCHITECTURES} --progress plain --push ${TAG_LIST} --build-arg VERSION=${VERSION} -f ${DIRECTORY}/Dockerfile .
   tags: [ jitesoft, buildx, protected ]
@@ -93,8 +91,6 @@ containerize:alpine:
       when: always
     - when: never
   before_script:
-    # No , before version_short, as that variable will contain it if needed.
-    # Tags will be 'latest,1.16.5,1.16' if on latest and the version is 1.16.5
     - !reference [.containerize_before, before_script]
     - TAG_LIST=$(helper "${CI_REGISTRY_IMAGE},jitesoft/go,ghcr.io/jitesoft/go", "${TYPE},${VERSION}${VERSION_SHORT}")
 

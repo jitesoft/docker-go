@@ -1,12 +1,6 @@
 include:
   - https://gitlab.com/jitesoft/gitlab-ci-lib/raw/master/Scan/trivy.yml
 
-stages:
-  - .pre
-  - download
-  - build
-  - .post
-
 workflow:
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
@@ -14,6 +8,7 @@ workflow:
     - if: '$CI_PIPELINE_SOURCE == "web"'
       when: always
     - if: '$CI_PIPELINE_SOURCE == "trigger"'
+      when: always
     - when: never
 
 check:
@@ -44,15 +39,11 @@ check:
     policy: pull
 
 download:
-  stage: download
+  stage: .pre
   image: registry.gitlab.com/jitesoft/dockerfiles/misc:latest
-  variables:
-    GIT_STRATEGY: none
-  before_script:
-    - echo "Downloading version ${VERSION} (${V_TYPE} )"
   script:
+    - echo "Downloading version ${VERSION} (${V_TYPE})"
     - apk add --no-cache libxml2-utils grep wget
-    # Get sha.
     - SHASUM=$(wget -qO- https://golang.org/dl/ | xmllint --html --xpath "//a[contains(@class, 'download') and contains(@href, 'go${VERSION}.src.tar.gz') and not(contains(@class, 'downloadBox'))]/parent::td/following-sibling::td[5]/tt/text()" - 2>/dev/null)
     - echo "${SHASUM} go${VERSION}.src.tar.gz" >> sha256sum.txt
     - wget "https://dl.google.com/go/${VERSION}"
@@ -62,14 +53,14 @@ download:
       - go${VERSION}.src.tar.gz
     expire_in: 1 day
   rules:
-    - if: '$BUILD == "true"'
+    - if: '$BUILD'
       when: always
     - when: never
 
 build:
   stage: build
   rules:
-    - if: '$BUILD == "true"'
+    - if: '$BUILD'
       when: always
     - when: never
   needs:
@@ -93,7 +84,7 @@ scan:
   stage: .post
   extends: .container_scanning
   rules:
-    - if: '$SCAN == "true"'
+    - if: '$SCAN'
       when: always
     - when: never
   variables:
@@ -102,4 +93,3 @@ scan:
     - TAG=":${VERSION}"
     - if [ $OS_TYPE != ${ALPINE} ]; then TAG="/${OS_TYPE}/${VERSION}:"; fi
     - SCANNING_IMAGE_NAME="${CI_REGISTRY_IMAGE}${TAG}"
-
