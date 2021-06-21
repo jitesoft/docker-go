@@ -1,6 +1,7 @@
 stages:
   - build
   - containerize
+  - cache
 
 variables:
   ARCHITECTURES: "linux/amd64,linux/arm64,linux/arm/v7"
@@ -128,3 +129,19 @@ containerize:ubuntu:
     - if [ "${VERSION_SHORT}" != "" ]; then VERSION_SHORT="${VERSION_SHORT}-ubuntu"; fi
     - TAG_LIST2=$(helper "${CI_REGISTRY_IMAGE},jitesoft/go,ghcr.io/jitesoft/go", "${TYPE}-ubuntu,${VERSION}-ubuntu${VERSION_SHORT}")
     - TAG_LIST="$TAG_LIST $TAG_LIST2"
+
+create-cache:
+  stage: cache
+  needs:
+    - job: containerize:ubuntu
+      artifacts: false
+    - job: containerize:debian
+      artifacts: false
+    - job: containerize:alpine
+      artifacts: false
+  script:
+    - echo "${VERSION}" > ${TYPE}.txt
+  cache:
+    paths:
+      - ${TYPE}.txt
+    policy: push
