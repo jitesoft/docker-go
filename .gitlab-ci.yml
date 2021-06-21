@@ -13,6 +13,7 @@ workflow:
       when: always
     - if: '$CI_PIPELINE_SOURCE == "web"'
       when: always
+    - if: '$CI_PIPELINE_SOURCE == "trigger"'
     - when: never
 
 check:
@@ -48,7 +49,7 @@ download:
   variables:
     GIT_STRATEGY: none
   before_script:
-    - echo "Downloading and building for version ${VERSION} (${V_TYPE} )"
+    - echo "Downloading version ${VERSION} (${V_TYPE} )"
   script:
     - apk add --no-cache libxml2-utils grep wget
     # Get sha.
