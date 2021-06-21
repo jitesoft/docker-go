@@ -1,6 +1,12 @@
 include:
   - https://gitlab.com/jitesoft/gitlab-ci-lib/raw/master/Scan/trivy.yml
 
+workflow:
+  rules:
+    - if: "$CI_COMMIT_BRANCH == 'master'"
+      when: always
+    - when: never
+
 check:
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
