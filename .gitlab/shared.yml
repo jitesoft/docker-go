@@ -132,13 +132,7 @@ containerize:ubuntu:
 
 create-cache:
   stage: cache
-  needs:
-    - job: containerize:ubuntu
-      artifacts: false
-    - job: containerize:debian
-      artifacts: false
-    - job: containerize:alpine
-      artifacts: false
+  when: on_success
   script:
     - echo "${VERSION}" > ${TYPE}.txt
   cache:
