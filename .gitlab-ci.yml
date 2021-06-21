@@ -3,18 +3,23 @@ include:
 
 workflow:
   rules:
-    - if: '$CI_COMMIT_BRANCH == "master"'
+    - if: "$CI_COMMIT_BRANCH == 'master'"
       when: always
     - when: never
 
+stages:
+  - download
+  - build
+  - scan
+
 check:
+  stage: download
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
       when: always
     - if: '$CI_PIPELINE_SOURCE == "web"'
       when: always
     - when: never
-  stage: .pre
   parallel:
     matrix:
       - { VERSION: 'latest', GIT_STRATEGY: 'none' }
@@ -41,7 +46,7 @@ check:
     policy: pull
 
 download:
-  stage: .pre
+  stage: download
   image: registry.gitlab.com/jitesoft/dockerfiles/misc:latest
   script:
     - echo "Downloading version ${VERSION} (${V_TYPE})"
@@ -56,7 +61,7 @@ download:
     expire_in: 1 day
     when: on_success
   rules:
-    - if: '$BUILD && $CI_PIPELINE_SOURCE == "trigger"'
+    - if: "$BUILD"
       when: always
     - when: never
 
@@ -74,20 +79,19 @@ build:
     strategy: depend
   variables:
     PARENT_PIPELINE_ID: $CI_PIPELINE_ID
-    BUILD: "true"
-    TYPE: "$V_TYPE"
-    VERSION: "$VERSION"
-    OS_TYPE: "$OS_TYPE"
+    TYPE: $V_TYPE
+    VERSION: $VERSION
+    OS_TYPE: $OS_TYPE
   rules:
-    - if: '$BUILD && $CI_PIPELINE_SOURCE == "trigger"'
+    - if: "$BUILD"
       when: on_success
     - when: never
 
 scan:
-  stage: .post
+  stage: scan
   extends: .container_scanning
   rules:
-    - if: '$SCAN'
+    - if: "$SCAN"
       when: always
     - when: never
   variables:
