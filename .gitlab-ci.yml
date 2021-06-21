@@ -35,10 +35,10 @@ check:
     - |
       if [ ! -z "${FORCE_BUILD+x}" ] || [ "${REMOTE_VERSION}" != "${LOCAL_VERSION}" ]; then
         echo "${REMOTE_VERSION} and ${LOCAL_VERSION} differ. Running build."
-        curl -F token=${CI_JOB_TOKEN} -F ref=master -F "variables[V_TYPE]=${VERSION}" -F "variables[VERSION]=${LOCAL_VERSION}" -F "variables[BUILD]=true" https://gitlab.com/api/v4/projects/${CI_PROJECT_ID}/trigger/pipeline
+        curl -F token=${CI_JOB_TOKEN} -F ref=master -F "variables[V_TYPE]=${VERSION}" -F "variables[VERSION]=${REMOTE_VERSION}" -F "variables[BUILD]=true" https://gitlab.com/api/v4/projects/${CI_PROJECT_ID}/trigger/pipeline
       else
         echo "${REMOTE_VERSION} and ${LOCAL_VERSION} where equal. Running scan."
-        curl -F token=${CI_JOB_TOKEN} -F ref=master -F "variables[OS_TYPE]=${OS_TYPE}" -F "variables[V_TYPE]=${VERSION}" -F "variables[VERSION]=${LOCAL_VERSION}" -F "variables[SCAN]=true" https://gitlab.com/api/v4/projects/${CI_PROJECT_ID}/trigger/pipeline
+        curl -F token=${CI_JOB_TOKEN} -F ref=master -F "variables[OS_TYPE]=${OS_TYPE}" -F "variables[V_TYPE]=${VERSION}" -F "variables[VERSION]=${REMOTE_VERSION}" -F "variables[SCAN]=true" https://gitlab.com/api/v4/projects/${CI_PROJECT_ID}/trigger/pipeline
       fi
   cache:
     paths:
