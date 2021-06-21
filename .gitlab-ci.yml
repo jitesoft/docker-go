@@ -52,6 +52,7 @@ download:
     - echo "Downloading version ${VERSION} (${V_TYPE})"
     - apk add --no-cache libxml2-utils grep wget
     - SHASUM=$(wget -qO- https://golang.org/dl/ | xmllint --html --xpath "//a[contains(@class, 'download') and contains(@href, 'go${VERSION}.src.tar.gz') and not(contains(@class, 'downloadBox'))]/parent::td/following-sibling::td[5]/tt/text()" - 2>/dev/null)
+    - echo "Found sha ${SHASUM}"
     - echo "${SHASUM} go${VERSION}.src.tar.gz" >> sha256sum.txt
     - wget "https://golang.org/dl/go${VERSION}.src.tar.gz"
     - sha256sum -c sha256sum.txt
