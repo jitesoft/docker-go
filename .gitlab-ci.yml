@@ -4,448 +4,101 @@ include:
 variables:
   ARCHITECTURES: "linux/amd64,linux/arm64,linux/arm/v7"
 
-stages:
-  - pre
-  - download
-  - build
-  - containerize
-  - scan
-
-download:versions:
+check:
+  stage: .pre
+  parallel:
+    matrix:
+      - { VERSION: 'latest', GIT_STRATEGY: 'none' }
+      - { VERSION: 'prev', GIT_STRATEGY: 'none' }
   image: registry.gitlab.com/jitesoft/dockerfiles/alpine:latest
-  stage: pre
-  variables:
-    GIT_STRATEGY: none
   before_script:
     - apk add --no-cache libxml2-utils grep
+    - touch ${VERSION}.txt
   script:
-    - VERSIONS=$(wget -qO- https://golang.org/dl/ | grep -oP "(?<=go)([0-9]{0,3}[.][0-9]{0,3}([.][0-9]{0,3})?)(?=.linux)" | uniq | head -n2)
     - |
-      for VERSION in ${VERSIONS}; do
-        OUTPUT=$(wget -qO- https://golang.org/dl/ | xmllint --html --xpath "//a[contains(@class, 'download') and contains(@href, 'go${VERSION}.src.tar.gz') and not(contains(@class, 'downloadBox'))]/parent::td/following-sibling::td[5]/tt/text()" - 2>/dev/null)
-        echo "${OUTPUT} go${VERSION}.src.tar.gz" >> sha256sum.txt
-      done
-  artifacts:
+      if [ $VERSION == 'latest' ]; then
+        REMOTE_VERSION=$(wget -qO- https://golang.org/dl/ | grep -oP "(?<=go)([0-9]{0,3}[.][0-9]{0,3}([.][0-9]{0,3})?)(?=.linux)" | uniq | head -n1)
+      else
+        REMOTE_VERSION=$(wget -qO- https://golang.org/dl/ | grep -oP "(?<=go)([0-9]{0,3}[.][0-9]{0,3}([.][0-9]{0,3})?)(?=.linux)" | uniq | head -n2 | tail -n1)
+      fi
+    - LOCAL_VERSION=$(cat ${VERSION}.txt)
+    - |
+      if [ ! -z "${FORCE_BUILD+x}" ] || [ "${REMOTE_VERSION}" != "${LOCAL_VERSION}" ]; then
+        echo "${REMOTE_VERSION} and ${LOCAL_VERSION} differ. Running build."
+        curl -F token=${CI_JOB_TOKEN} -F ref=master -F "variables[V_TYPE]=${VERSION}" -F "variables[VERSION]=${LOCAL_VERSION}" -F "variables[BUILD]=true" https://gitlab.com/api/v4/projects/${CI_PROJECT_ID}/trigger/pipeline
+      else
+        echo "${REMOTE_VERSION} and ${LOCAL_VERSION} where equal. Running scan."
+        curl -F token=${CI_JOB_TOKEN} -F ref=master -F "variables[OS_TYPE]=${OS_TYPE}" -F "variables[V_TYPE]=${VERSION}" -F "variables[VERSION]=${LOCAL_VERSION}" -F "variables[SCAN]=true" https://gitlab.com/api/v4/projects/${CI_PROJECT_ID}/trigger/pipeline
+      fi
+  cache:
     paths:
-      - sha256sum.txt
-    expire_in: 1 day
-  tags: [ jitesoft ]
-  only:
-    refs:
-      - master
+      - ${VERSION}.txt
+    policy: pull
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+      when: always
+    - if: '$CI_PIPELINE_SOURCE == "web"'
+      when: always
+    - when: never
 
-download:src:
-  image: registry.gitlab.com/jitesoft/dockerfiles/alpine:latest
-  stage: download
+download:
+  stage: .pre
+  image: registry.gitlab.com/jitesoft/dockerfiles/misc:latest
   variables:
     GIT_STRATEGY: none
-  dependencies:
-    - download:versions
   before_script:
-    - apk add --no-cache coreutils
+    - echo "Downloading and building for version ${VERSION} (${V_TYPE} )"
   script:
-    - cat sha256sum.txt
-    - |
-      while read -r line
-      do
-        set -- $line
-        wget "https://dl.google.com/go/${2}"
-      done <"sha256sum.txt"
+    # Get sha.
+    - SHASUM=$(wget -qO- https://golang.org/dl/ | xmllint --html --xpath "//a[contains(@class, 'download') and contains(@href, 'go${VERSION}.src.tar.gz') and not(contains(@class, 'downloadBox'))]/parent::td/following-sibling::td[5]/tt/text()" - 2>/dev/null)
+    - echo "${SHASUM} go${VERSION}.src.tar.gz" >> sha256sum.txt
+    - wget "https://dl.google.com/go/${VERSION}"
     - sha256sum -c sha256sum.txt
   artifacts:
     paths:
-      - ${CI_PROJECT_DIR}/*.src.tar.gz
+      - go${VERSION}.src.tar.gz
     expire_in: 1 day
-  tags: [ jitesoft ]
-  only:
-    refs:
-      - master
+  rules:
+    - if: "$BUILD"
+      when: always
+    - when: never
 
-.build:base:
-  needs:
-    - download:src
-    - download:versions
+build:
   stage: build
-  script:
-    - |
-      if [ "${TYPE}" == "latest" ]; then
-        FILE=$(cat sha256sum.txt | awk '{print $2}' | head -1)
-        VERSION=$(echo ${FILE} | grep -oP '([0-9]{0,3}[.][0-9]{0,3}([.][0-9]{0,3})?)(?=.src.tar.gz)')
-      else
-        FILE=$(cat sha256sum.txt | awk '{print $2}' | tail -1)
-        VERSION=$(echo ${FILE} | grep -oP '([0-9]{0,3}[.][0-9]{0,3}([.][0-9]{0,3})?)(?=.src.tar.gz)')
-      fi
-    - echo "${TYPE} ${VERSION}"
-    - tar -xzhf go${VERSION}.src.tar.gz
-    - cd go/src
-    - ./make.bash
-    - cd ${CI_PROJECT_DIR}
-    - rm -rf go/pkg/obj
-    - rm -rf go/pkg/bootstrap
-    - rm -rf go/doc
-  after_script:
-    - tar -czf ${CI_PROJECT_DIR}/go-${ARCH}.tar.gz go/
-  artifacts:
-    paths:
-      - go-${ARCH}.tar.gz
-    expire_in: 1 day
-  only:
-    refs:
-      - master
-
-.build:alpine:
-  extends: .build:base
-  image: registry.gitlab.com/jitesoft/dockerfiles/go/bootstrap:alpine
-  before_script:
-    - apk add --no-cache git gcc openssl ca-certificates musl-dev bash grep
-
-.build:debian:
-  extends: .build:base
-  image: registry.gitlab.com/jitesoft/dockerfiles/go/bootstrap:debian
-  before_script:
-    - apt-get update
-    - apt-get install -y git gcc openssl ca-certificates
-
-.build:ubuntu:
-  extends: .build:base
-  image: registry.gitlab.com/jitesoft/dockerfiles/go/bootstrap:ubuntu
-  before_script:
-    - apt-get update
-    - apt-get install -y git gcc openssl ca-certificates
-
-build:alpine:amd:latest:
-  extends: .build:alpine
+  rules:
+    - if: "$BUILD"
+      when: always
+    - when: never
+  parallel:
+    matrix:
+      - { OS_TYPE: 'alpine' }
+      - { OS_TYPE: 'ubuntu' }
+      - { OS_TYPE: 'debian' }
+  trigger:
+    include: ".gitlab/shared.yml"
+    strategy: depend
   variables:
-    ARCH: amd64
-    TYPE: latest
-  tags:
-    - native-amd64
+    PARENT_PIPELINE_ID: $CI_PIPELINE_ID
+    BUILD: "true"
+    TYPE: "$V_TYPE"
+    VERSION: "$VERSION"
+    OS_TYPE: "$OS_TYPE"
 
-build:alpine:amd:prev:
-  extends: .build:alpine
-  variables:
-    ARCH: amd64
-    TYPE: prev
-  tags:
-    - native-amd64
-
-build:alpine:arm:latest:
-  extends: .build:alpine
-  variables:
-    ARCH: arm64
-    TYPE: latest
-  tags:
-    - native-aarch64
-
-build:alpine:arm:prev:
-  extends: .build:alpine
-  variables:
-    ARCH: arm64
-    TYPE: prev
-  tags:
-    - native-aarch64
-
-build:alpine:arm7:prev:
-  extends: .build:alpine
-  variables:
-    ARCH: arm
-    GOARCH: arm
-    GOARM: 7
-    TYPE: prev
-
-build:alpine:arm7:latest:
-  extends: .build:alpine
-  variables:
-    ARCH: arm
-    GOARCH: arm
-    GOARM: 7
-    TYPE: latest
-
-build:ubuntu:amd:latest:
-  extends: .build:ubuntu
-  variables:
-    ARCH: amd64
-    TYPE: latest
-  tags:
-    - native-amd64
-
-build:ubuntu:amd:prev:
-  extends: .build:ubuntu
-  variables:
-    ARCH: amd64
-    TYPE: prev
-  tags:
-    - native-amd64
-
-build:ubuntu:arm:latest:
-  extends: .build:ubuntu
-  variables:
-    ARCH: arm64
-    TYPE: latest
-  tags:
-    - native-aarch64
-
-build:ubuntu:arm:prev:
-  extends: .build:ubuntu
-  variables:
-    ARCH: arm64
-    TYPE: prev
-  tags:
-    - native-aarch64
-
-build:ubuntu:arm7:prev:
-  extends: .build:ubuntu
-  variables:
-    ARCH: arm
-    GOARCH: arm
-    GOARM: 7
-    TYPE: prev
-
-build:ubuntu:arm7:latest:
-  extends: .build:ubuntu
-  variables:
-    ARCH: arm
-    GOARCH: arm
-    GOARM: 7
-    TYPE: latest
-
-build:debian:amd:latest:
-  extends: .build:debian
-  variables:
-    ARCH: amd64
-    TYPE: latest
-  tags:
-    - native-amd64
-
-build:debian:amd:prev:
-  extends: .build:debian
-  variables:
-    ARCH: amd64
-    TYPE: prev
-  tags:
-    - native-amd64
-
-build:debian:arm:latest:
-  extends: .build:debian
-  variables:
-    ARCH: arm64
-    TYPE: latest
-  tags:
-    - native-aarch64
-
-build:debian:arm:prev:
-  extends: .build:debian
-  variables:
-    ARCH: arm64
-    TYPE: prev
-  tags:
-    - native-aarch64
-
-build:debian:arm7:latest:
-  extends: .build:debian
-  variables:
-    ARCH: arm
-    GOARCH: arm
-    GOARM: 7
-    TYPE: latest
-
-build:debian:arm7:prev:
-  extends: .build:debian
-  variables:
-    ARCH: arm
-    GOARCH: arm
-    GOARM: 7
-    TYPE: prev
-
-.containerize:alpine:
-  stage: containerize
-  image: registry.gitlab.com/jitesoft/dockerfiles/misc:latest
-  script:
-    - mkdir bin
-    - mv *.tar.gz bin/
-    - VERSION_SHORT="${VERSION}"
-    - OC=$(echo ${VERSION} | awk -F"." '{print NF-1}')
-    - if [ "$OC" = "2" ]; then VERSION_SHORT=$(echo ${VERSION} | cut -d'.' -f1,2); fi
-    - TAG_LIST=$(helper "${CI_REGISTRY_IMAGE},jitesoft/go,ghcr.io/jitesoft/go", "${TAGS},${VERSION},${VERSION_SHORT}")
-    - docker buildx build --platform ${ARCHITECTURES} --progress plain --push ${TAG_LIST} --build-arg VERSION=${VERSION} -f Alpine/Dockerfile .
-  only:
-    refs:
-      - master
-  tags: [ jitesoft, buildx, protected ]
-
-.containerize:ubuntu:
-  stage: containerize
-  image: registry.gitlab.com/jitesoft/dockerfiles/misc:latest
-  script:
-    - mkdir bin
-    - mv *.tar.gz bin/
-    - VERSION_SHORT="${VERSION}"
-    - OC=$(echo ${VERSION} | awk -F"." '{print NF-1}')
-    - if [ "$OC" = "2" ]; then VERSION_SHORT=$(echo ${VERSION} | cut -d'.' -f1,2); fi
-    - TAG_LIST=$(helper "${CI_REGISTRY_IMAGE}/ubuntu", "${TAGS},${VERSION}${VERSION_SHORT}")
-    - TAG_LIST_HUB=$(helper "jitesoft/go,ghcr.io/jitesoft/go", "${TAGS}-ubuntu,${VERSION}-ubuntu,${VERSION_SHORT}-ubuntu")
-    - docker buildx build --platform ${ARCHITECTURES} --progress plain --push ${TAG_LIST} ${TAG_LIST_HUB} --build-arg VERSION=${VERSION} -f Ubuntu/Dockerfile .
-  only:
-    refs:
-      - master
-  tags: [ jitesoft, buildx, protected ]
-
-.containerize:debian:
-  stage: containerize
-  image: registry.gitlab.com/jitesoft/dockerfiles/misc:latest
-  script:
-    - mkdir bin
-    - mv *.tar.gz bin/
-    - VERSION_SHORT="${VERSION}"
-    - OC=$(echo ${VERSION} | awk -F"." '{print NF-1}')
-    - if [ "$OC" = "2" ]; then VERSION_SHORT=$(echo ${VERSION} | cut -d'.' -f1,2); fi
-    - TAG_LIST=$(helper "${CI_REGISTRY_IMAGE}/debian", "${TAGS},${VERSION}${VERSION_SHORT}")
-    - TAG_LIST_HUB=$(helper "jitesoft/go,ghcr.io/jitesoft/go", "${TAGS}-debian,${VERSION}-debian,${VERSION_SHORT}-debian")
-    - docker buildx build --platform ${ARCHITECTURES} --progress plain --push ${TAG_LIST} ${TAG_LIST_HUB} --build-arg VERSION=${VERSION} -f Debian/Dockerfile .
-  only:
-    refs:
-      - master
-  tags: [ jitesoft, buildx, protected ]
-
-containerize:current:ubuntu:
-  stage: containerize
-  needs:
-    - build:ubuntu:arm:latest
-    - build:ubuntu:arm7:latest
-    - build:ubuntu:amd:latest
-    - download:versions
-  variables:
-    TAGS: "latest"
-  extends: .containerize:ubuntu
-  before_script:
-    - apk add --no-cache grep
-    - FILE=$(cat sha256sum.txt | awk '{print $2}' | head -1)
-    - VERSION=$(echo ${FILE} | grep -oP '([0-9]{0,3}[.][0-9]{0,3}([.][0-9]{0,3})?)(?=.src.tar.gz)')
-
-containerize:prev:ubuntu:
-  stage: containerize
-  needs:
-    - build:ubuntu:arm:prev
-    - build:ubuntu:arm7:prev
-    - build:ubuntu:amd:prev
-    - download:versions
-  variables:
-    TAGS: "prev"
-  extends: .containerize:debian
-  before_script:
-    - apk add --no-cache grep
-    - FILE=$(cat sha256sum.txt | awk '{print $2}' | tail -1)
-    - VERSION=$(echo ${FILE} | grep -oP '([0-9]{0,3}[.][0-9]{0,3}([.][0-9]{0,3})?)(?=.src.tar.gz)')
-
-containerize:current:debian:
-  stage: containerize
-  needs:
-    - build:debian:arm:latest
-    - build:debian:arm7:latest
-    - build:debian:amd:latest
-    - download:versions
-  variables:
-    TAGS: "latest"
-  extends: .containerize:debian
-  before_script:
-    - apk add --no-cache grep
-    - FILE=$(cat sha256sum.txt | awk '{print $2}' | head -1)
-    - VERSION=$(echo ${FILE} | grep -oP '([0-9]{0,3}[.][0-9]{0,3}([.][0-9]{0,3})?)(?=.src.tar.gz)')
-
-containerize:prev:debian:
-  stage: containerize
-  needs:
-    - build:debian:arm:prev
-    - build:debian:arm7:prev
-    - build:debian:amd:prev
-    - download:versions
-  variables:
-    TAGS: "prev"
-  extends: .containerize:debian
-  before_script:
-    - apk add --no-cache grep
-    - FILE=$(cat sha256sum.txt | awk '{print $2}' | tail -1)
-    - VERSION=$(echo ${FILE} | grep -oP '([0-9]{0,3}[.][0-9]{0,3}([.][0-9]{0,3})?)(?=.src.tar.gz)')
-
-containerize:current:alpine:
-  stage: containerize
-  needs:
-    - build:alpine:arm:latest
-    - build:alpine:arm7:latest
-    - build:alpine:amd:latest
-    - download:versions
-  variables:
-    TAGS: "latest"
-  extends: .containerize:alpine
-  before_script:
-    - apk add --no-cache grep
-    - FILE=$(cat sha256sum.txt | awk '{print $2}' | head -1)
-    - VERSION=$(echo ${FILE} | grep -oP '([0-9]{0,3}[.][0-9]{0,3}([.][0-9]{0,3})?)(?=.src.tar.gz)')
-
-containerize:prev:alpine:
-  needs:
-    - build:alpine:arm:prev
-    - build:alpine:arm7:prev
-    - build:alpine:amd:prev
-    - download:versions
-  stage: containerize
-  variables:
-    TAGS: "prev"
-  extends: .containerize:alpine
-  before_script:
-    - apk add --no-cache grep
-    - FILE=$(cat sha256sum.txt | awk '{print $2}' | tail -1)
-    - VERSION=$(echo ${FILE} | grep -oP '([0-9]{0,3}[.][0-9]{0,3}([.][0-9]{0,3})?)(?=.src.tar.gz)')
-
-scan:current:ubuntu:
-  needs:
-    - containerize:current:ubuntu
-  stage: scan
+scan:
+  stage: .post
   extends: .container_scanning
+  rules:
+    - if: '$SCAN'
+      when: always
+    - when: never
   variables:
-    SCANNING_IMAGE_NAME: "${CI_REGISTRY_IMAGE}/ubuntu:latest"
     GIT_STRATEGY: none
+  before_script:
+    - TAG=":${VERSION}"
+    - if [ $OS_TYPE != ${ALPINE} ]; then TAG="/${OS_TYPE}/${VERSION}:"; fi
+    - SCANNING_IMAGE_NAME="${CI_REGISTRY_IMAGE}${TAG}"
 
-scan:prev:ubuntu:
-  needs:
-    - containerize:prev:ubuntu
-  stage: scan
-  extends: .container_scanning
-  variables:
-    SCANNING_IMAGE_NAME: "${CI_REGISTRY_IMAGE}/ubuntu:prev"
-    GIT_STRATEGY: none
-
-scan:current:debian:
-  needs:
-    - containerize:current:debian
-  stage: scan
-  extends: .container_scanning
-  variables:
-    SCANNING_IMAGE_NAME: "${CI_REGISTRY_IMAGE}/debian:latest"
-    GIT_STRATEGY: none
-
-scan:prev:debian:
-  needs:
-    - containerize:prev:debian
-  stage: scan
-  extends: .container_scanning
-  variables:
-    SCANNING_IMAGE_NAME: "${CI_REGISTRY_IMAGE}/debian:prev"
-    GIT_STRATEGY: none
-
-scan:current:alpine:
-  needs:
-    - containerize:current:alpine
-  stage: scan
-  extends: .container_scanning
-  variables:
-    SCANNING_IMAGE_NAME: "${CI_REGISTRY_IMAGE}:latest"
-    GIT_STRATEGY: none
-
-scan:prev:alpine:
-  needs:
-    - containerize:prev:alpine
-  extends: .container_scanning
-  variables:
-    SCANNING_IMAGE_NAME: "${CI_REGISTRY_IMAGE}:prev"
-    GIT_STRATEGY: none
+stages:
+  - .pre
+  - build
+  - .post

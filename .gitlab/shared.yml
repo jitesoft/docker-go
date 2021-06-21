@@ -1,0 +1,130 @@
+stages:
+  - build
+  - containerize
+
+variables:
+  ARCHITECTURES: "linux/amd64,linux/arm64,linux/arm/v7"
+
+.build:
+  stage: build
+  image: registry.gitlab.com/jitesoft/dockerfiles/go/bootstrap:${OS_TYPE}
+  needs:
+    - pipeline: $PARENT_PIPELINE_ID
+      job: download
+      artifacts: true
+  parallel:
+    matrix:
+      - { ARCH: 'arm64', GIT_STRATEGY: 'none' }
+      - { ARCH: 'amd64', GIT_STRATEGY: 'none' }
+      - { ARCH: 'arm', GOARCH: 'arm', GO_ARM: 'v7', GIT_STRATEGY: 'none' }
+  script:
+    - echo "Building ${VERSION}"
+    - tar -xzhf go${VERSION}.src.tar.gz
+    - cd go/src
+    - ./make.bash
+    - cd ${CI_PROJECT_DIR}
+    - rm -rf go/pkg/obj
+    - rm -rf go/pkg/bootstrap
+    - rm -rf go/doc
+    - tar -czf ${CI_PROJECT_DIR}/go-${ARCH}.tar.gz go/
+  artifacts:
+    paths:
+      - go-${ARCH}.tar.gz
+    expire_in: 1 day
+
+.containerize_before:
+  before_script:
+    - mkdir bin
+    - mv *.tar.gz bin/
+    - VERSION_SHORT=""
+    # If there is just two, then the version is the same as short.
+    - if [ "$(echo ${VERSION} | awk -F"." '{print NF-1}')" = "2" ]; then VERSION_SHORT=",$(echo ${VERSION} | cut -d'.' -f1,2)"; fi
+    - TAG_LIST=$(helper "jitesoft/go,ghcr.io/jitesoft/go", "${TYPE}${APPEND_TAG},${PRETAG}")
+
+# APPEND_TAG
+.containerize:
+  stage: containerize
+  image: registry.gitlab.com/jitesoft/dockerfiles/misc:latest
+  script:
+    # Uppercase the first letter of os type so we get the directory in correct case.
+    - DIRECTORY=$(echo $OS_TYPE | awk '{$1=toupper(substr($1,0,1))substr($1,2)}1')
+    - docker buildx build --platform ${ARCHITECTURES} --progress plain --push ${TAG_LIST} --build-arg VERSION=${VERSION} -f ${DIRECTORY}/Dockerfile .
+  tags: [ jitesoft, buildx, protected ]
+  after_script:
+    - curl -F token=${CI_JOB_TOKEN} -F ref=master -F "variables[OS_TYPE]=${OS_TYPE}" -F "variables[V_TYPE]=${TYPE}" -F "variables[VERSION]=${VERSION}" -F "variables[SCAN]=true" https://gitlab.com/api/v4/projects/${CI_PROJECT_ID}/trigger/pipeline
+
+build:alpine:
+  extends: .build
+  rules:
+    - if: '$OS_TYPE == "alpine"'
+      when: always
+    - when: never
+  before_script:
+    - apk add --no-cache git gcc openssl ca-certificates musl-dev bash grep
+
+build:debian:
+  extends: .build
+  rules:
+    - if: '$OS_TYPE == "debian"'
+      when: always
+    - when: never
+  before_script:
+    - apt-get update
+    - apt-get install -y git gcc openssl ca-certificates
+
+build:ubuntu:
+  extends: .build
+  rules:
+    - if: '$OS_TYPE == "ubuntu"'
+      when: always
+    - when: never
+  before_script:
+    - apt-get update
+    - apt-get install -y git gcc openssl ca-certificates
+
+containerize:alpine:
+  extends: .containerize
+  needs:
+    - job: build:alpine
+      artifacts: true
+  rules:
+    - if: '$OS_TYPE == "alpine"'
+      when: always
+    - when: never
+  before_script:
+    # No , before version_short, as that variable will contain it if needed.
+    # Tags will be 'latest,1.16.5,1.16' if on latest and the version is 1.16.5
+    - !reference [.containerize_before, before_script]
+    - TAG_LIST=$(helper "${CI_REGISTRY_IMAGE},jitesoft/go,ghcr.io/jitesoft/go", "${TYPE},${VERSION}${VERSION_SHORT}")
+
+containerize:debian:
+  extends: .containerize
+  needs:
+    - job: build:debian
+      artifacts: true
+  rules:
+    - if: '$OS_TYPE == "debian"'
+      when: always
+    - when: never
+  before_script:
+    - !reference [.containerize_before, before_script]
+    - TAG_LIST=$(helper "${CI_REGISTRY_IMAGE}/debian" "${TYPE},${VERSION}${VERSION_SHORT}")
+    - if [ "${VERSION_SHORT}" != "" ]; then VERSION_SHORT="${VERSION_SHORT}-debian"; fi
+    - TAG_LIST2=$(helper "${CI_REGISTRY_IMAGE},jitesoft/go,ghcr.io/jitesoft/go", "${TYPE}-debian,${VERSION}-debian${VERSION_SHORT}")
+    - TAG_LIST="$TAG_LIST $TAG_LIST2"
+
+containerize:ubuntu:
+  extends: .containerize
+  needs:
+    - job: build:ubuntu
+      artifacts: true
+  rules:
+    - if: '$OS_TYPE == "ubuntu"'
+      when: always
+    - when: never
+  before_script:
+    - !reference [.containerize_before, before_script]
+    - TAG_LIST=$(helper "${CI_REGISTRY_IMAGE}/ubuntu" "${TYPE},${VERSION}${VERSION_SHORT}")
+    - if [ "${VERSION_SHORT}" != "" ]; then VERSION_SHORT="${VERSION_SHORT}-ubuntu"; fi
+    - TAG_LIST2=$(helper "${CI_REGISTRY_IMAGE},jitesoft/go,ghcr.io/jitesoft/go", "${TYPE}-ubuntu,${VERSION}-ubuntu${VERSION_SHORT}")
+    - TAG_LIST="$TAG_LIST $TAG_LIST2"
