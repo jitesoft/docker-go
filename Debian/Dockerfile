@@ -1,5 +1,5 @@
 # syntax = docker/dockerfile:experimental
-FROM registry.gitlab.com/jitesoft/dockerfiles/debian:stable-slim
+FROM registry.gitlab.com/jitesoft/dockerfiles/debian:bullseye-slim
 ARG VERSION
 LABEL maintainer="Johannes Tegnér <johannes@jitesoft.com>" \
       maintainer.org="Jitesoft" \
