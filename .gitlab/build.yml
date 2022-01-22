@@ -47,7 +47,7 @@ variables:
   image: registry.gitlab.com/jitesoft/dockerfiles/misc:latest
   script:
     - DIRECTORY=$(echo $OS_TYPE | awk '{$1=toupper(substr($1,0,1))substr($1,2)}1')
-    - docker buildx build --platform ${ARCHITECTURES} --progress plain --push ${TAG_LIST} --build-arg VERSION=${VERSION} -f ${DIRECTORY}/Dockerfile .
+    - docker buildx build --platform ${ARCHITECTURES} --progress plain --push ${TAG_LIST}  --build-arg BUILD_TIME="$(date -Iseconds)" --build-arg VERSION=${VERSION} -f ${DIRECTORY}/Dockerfile .
   tags: [ jitesoft, buildx, protected ]
   after_script:
     - curl -F token=${CI_JOB_TOKEN} -F ref=master -F "variables[OS_TYPE]=${OS_TYPE}" -F "variables[V_TYPE]=${TYPE}" -F "variables[VERSION]=${VERSION}" -F "variables[SCAN]=true" https://gitlab.com/api/v4/projects/${CI_PROJECT_ID}/trigger/pipeline
