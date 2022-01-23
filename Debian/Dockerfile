@@ -1,6 +1,8 @@
 # syntax = docker/dockerfile:experimental
 FROM registry.gitlab.com/jitesoft/dockerfiles/debian:bullseye-slim
 ARG VERSION
+ARG BUILD_TIME
+
 LABEL maintainer="Johannes Tegnér <johannes@jitesoft.com>" \
       maintainer.org="Jitesoft" \
       maintainer.org.uri="https://jitesoft.com" \
