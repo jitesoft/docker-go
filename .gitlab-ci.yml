@@ -101,5 +101,5 @@ scan:
     GIT_STRATEGY: none
   before_script:
     - TAG=":${VERSION}"
-    - if [ $OS_TYPE != 'alpine' ]; then TAG="/${OS_TYPE}/${VERSION}:"; fi
+    - if [ $OS_TYPE != 'alpine' ]; then TAG="/${OS_TYPE}:${VERSION}"; fi
     - SCANNING_IMAGE_NAME="${CI_REGISTRY_IMAGE}${TAG}"
