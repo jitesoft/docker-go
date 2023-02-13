@@ -31,7 +31,7 @@ ENV PATH="/usr/local/go/bin:$PATH" \
 RUN --mount=type=bind,source=./bin,target=/tmp/bin \
     tar -xzhf /tmp/bin/go-${GOARCH}.tar.gz -C /usr/local/ \
  && apk add --no-cache git openssl ca-certificates \
- && mkdir -p "${GOPATH}/src" "${GOPATH}/bin" \
+ && mkdir -p ${GOPATH}/src ${GOPATH}/bin \
  && chmod -R 774 ${GOPATH} \
  && [ ! -e /etc/nsswitch.conf ] && echo 'hosts: files dns' > /etc/nsswitch.conf \
  && go version
