@@ -33,7 +33,6 @@ RUN --mount=type=bind,source=./bin,target=/tmp/bin \
  && apk add --no-cache git openssl ca-certificates \
  && mkdir -p ${GOPATH}/src ${GOPATH}/bin \
  && chmod -R 774 ${GOPATH} \
- && [ ! -e /etc/nsswitch.conf ] && echo 'hosts: files dns' > /etc/nsswitch.conf \
  && go version
 
 WORKDIR /go
