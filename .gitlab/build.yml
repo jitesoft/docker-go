@@ -92,7 +92,7 @@ containerize:alpine:
     - when: never
   before_script:
     - !reference [.containerize_before, before_script]
-    - TAG_LIST=$(helper "${CI_REGISTRY_IMAGE},jitesoft/go,ghcr.io/jitesoft/go", "${TYPE},${VERSION}${VERSION_SHORT}")
+    - TAG_LIST=$(helper "${CI_REGISTRY_IMAGE},jitesoft/go,ghcr.io/jitesoft/go,quay.io/jitesoft/go", "${TYPE},${VERSION}${VERSION_SHORT}")
 
 containerize:debian:
   extends: .containerize
@@ -107,7 +107,7 @@ containerize:debian:
     - !reference [.containerize_before, before_script]
     - TAG_LIST=$(helper "${CI_REGISTRY_IMAGE}/debian" "${TYPE},${VERSION}${VERSION_SHORT}")
     - if [ "${VERSION_SHORT}" != "" ]; then VERSION_SHORT="${VERSION_SHORT}-debian"; fi
-    - TAG_LIST2=$(helper "jitesoft/go,ghcr.io/jitesoft/go", "${TYPE}-debian,${VERSION}-debian${VERSION_SHORT}")
+    - TAG_LIST2=$(helper "jitesoft/go,ghcr.io/jitesoft/go,quay.io/jitesoft/go", "${TYPE}-debian,${VERSION}-debian${VERSION_SHORT}")
     - TAG_LIST="$TAG_LIST $TAG_LIST2"
 
 containerize:ubuntu:
@@ -123,7 +123,7 @@ containerize:ubuntu:
     - !reference [.containerize_before, before_script]
     - TAG_LIST=$(helper "${CI_REGISTRY_IMAGE}/ubuntu" "${TYPE},${VERSION}${VERSION_SHORT}")
     - if [ "${VERSION_SHORT}" != "" ]; then VERSION_SHORT="${VERSION_SHORT}-ubuntu"; fi
-    - TAG_LIST2=$(helper "jitesoft/go,ghcr.io/jitesoft/go", "${TYPE}-ubuntu,${VERSION}-ubuntu${VERSION_SHORT}")
+    - TAG_LIST2=$(helper "jitesoft/go,ghcr.io/jitesoft/go,quay.io/jitesoft/go", "${TYPE}-ubuntu,${VERSION}-ubuntu${VERSION_SHORT}")
     - TAG_LIST="$TAG_LIST $TAG_LIST2"
 
 create-cache:
