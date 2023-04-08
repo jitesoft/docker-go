@@ -66,7 +66,7 @@ download:bootstrap:
       - bootstrap
 
 .build:debianish:
-  image: registry.gitlab.com/jitesoft/dockerfiles/ubuntu:focal
+  image: registry.gitlab.com/jitesoft/dockerfiles/ubuntu:jammy
   extends: .build:base
   before_script:
     - apt-get update
@@ -147,7 +147,7 @@ containerize:ubuntu:
     - build:debianish:amd
   variables:
     IMAGE: ubuntu
-    TAG: bionic
+    TAG: jammy
 
 containerize:debian:
   extends: .containerize
