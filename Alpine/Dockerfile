@@ -1,5 +1,5 @@
 # syntax = docker/dockerfile:experimental
-FROM registry.gitlab.com/jitesoft/dockerfiles/alpine:latest
+FROM registry.gitlab.com/jitesoft/dockerfiles/alpine:3.17
 ARG VERSION
 ARG BUILD_TIME
 

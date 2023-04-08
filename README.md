@@ -34,15 +34,16 @@ This image follows the [Jitesoft image label specification 1.0.0](https://gitlab
 
 ### Licenses
 
-Repository files are released under the MIT license.  
+Files in this repository are released under the MIT license.  
 Read the Go license [here](https://github.com/golang/go/blob/master/LICENSE).
 
 ### Sponsors
 
 Jitesoft images are built via GitLab CI on runners hosted by the following wonderful organisations:
 
-[![Fosshost Logo](https://raw.githubusercontent.com/jitesoft/misc/master/sponsors/fosshostx128.png)](https://fosshost.org)
-[![Aarch64 logo](https://raw.githubusercontent.com/jitesoft/misc/master/sponsors/aarch64x128.png)](https://aarch64.com)
+<a href="https://osuosl.org/" target="_blank" title="Oregon State University - Open Source Lab">
+    <img src="https://jitesoft.com/images/oslx128.webp" alt="Oregon State University - Open Source Lab">
+</a>
 
 _The companies above are not affiliated with Jitesoft or any Jitesoft Projects directly._
 

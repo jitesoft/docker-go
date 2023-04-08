@@ -1,5 +1,5 @@
 # syntax = docker/dockerfile:experimental
-FROM registry.gitlab.com/jitesoft/dockerfiles/ubuntu:bionic
+FROM registry.gitlab.com/jitesoft/dockerfiles/ubuntu:jammy
 ARG VERSION
 ARG BUILD_TIME
 
